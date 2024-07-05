@@ -78,6 +78,11 @@ namespace tuposoft {
         std::string qname;
         dns_record_e qtype;
         std::uint16_t qclass{1};
+
+        auto operator==(const dns_question &other) const -> bool;
+
+    private:
+        [[nodiscard]] auto tied() const { return std::tie(qname, qtype, qclass); }
     };
 
     // Overload << operator to write data to stream
@@ -101,17 +106,22 @@ namespace tuposoft {
     // Overload >> operator to read data from stream
     auto operator>>(std::istream &input, dns_answer &answer) -> decltype(input);
 
-    struct dns_request {
+    struct dns_query {
         dns_header header;
         dns_question question;
+
+        auto operator==(const dns_query &) const -> bool;
+
+    private:
+        [[nodiscard]] auto tied() const { return std::tie(header, question); }
     };
 
-    auto operator<<(std::ostream &output, const dns_request &request) -> decltype(output);
+    auto operator<<(std::ostream &output, const dns_query &request) -> decltype(output);
 
-    auto operator>>(std::istream &input, dns_request &request) -> decltype(input);
+    auto operator>>(std::istream &input, dns_query &request) -> decltype(input);
 
 
-    struct dns_response : dns_request {
+    struct dns_response : dns_query {
         dns_answer answer;
     };
 } // namespace tuposoft

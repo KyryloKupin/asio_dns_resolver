@@ -143,6 +143,8 @@ namespace tuposoft {
         return ins;
     }
 
+    auto dns_question::operator==(const dns_question &other) const -> bool { return tied() == other.tied(); }
+
     auto operator<<(std::ostream &output, const dns_question &question) -> decltype(output) {
         const auto label_format = to_dns_label_format(question.qname);
         output.write(std::string{label_format.begin(), label_format.end()}.c_str(),
@@ -216,11 +218,13 @@ namespace tuposoft {
         return input;
     }
 
-    auto operator<<(std::ostream &output, const dns_request &request) -> decltype(output) {
+    auto dns_query::operator==(const dns_query &other) const -> bool { return tied() == other.tied(); }
+
+    auto operator<<(std::ostream &output, const dns_query &request) -> decltype(output) {
         return output << request.header << request.question;
     }
 
-    auto operator>>(std::istream &input, dns_request &request) -> decltype(input) {
+    auto operator>>(std::istream &input, dns_query &request) -> decltype(input) {
         input >> request.header;
         input >> request.question;
         return input;
