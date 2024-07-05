@@ -28,10 +28,15 @@ namespace tuposoft {
     auto from_dns_label_format(std::istream &input) -> std::string {
         auto qname_buffer = std::vector<char>{};
 
+        bool is_ptr = false;
         while (true) {
             const auto length = read_from_stream_and_copy<std::uint8_t>(input);
 
             if (length == 0) {
+                if (is_ptr) {
+                    input.unget();
+                }
+
                 break; // End of qname
             }
 
@@ -44,11 +49,13 @@ namespace tuposoft {
                 qname_buffer.insert(qname_buffer.end(), pointed_labes.begin(), pointed_labes.end());
                 qname_buffer.push_back('.');
                 input.seekg(current_pos);
+                is_ptr = true;
             } else {
                 auto label = std::vector<char>(length);
                 input.read(label.data(), length);
                 qname_buffer.insert(qname_buffer.end(), label.begin(), label.end());
                 qname_buffer.push_back('.');
+                is_ptr = false;
             }
         }
 
@@ -229,10 +236,10 @@ namespace tuposoft {
         const auto ttl_network = read_big_endian<std::uint32_t>(input);
         const auto rdlength_network = read_big_endian(input);
 
-        answer.type = static_cast<dns_record_e>(ntohs(type_network));
-        answer.cls = ntohs(cls_network);
-        answer.ttl = ntohl(ttl_network);
-        answer.rdlength = ntohs(rdlength_network);
+        answer.type = static_cast<dns_record_e>(type_network);
+        answer.cls = cls_network;
+        answer.ttl = ttl_network;
+        answer.rdlength = rdlength_network;
 
         auto buffer = std::vector<char>(answer.rdlength);
         input.read(buffer.data(), answer.rdlength);

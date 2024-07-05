@@ -61,6 +61,8 @@ protected:
                         .ttl = 0x012c,
                         .rdlength = 0x09,
                         .rdata = {
+                                0x00,
+                                0x0a,
                                 0x04,
                                 0x6d,
                                 0x61,
