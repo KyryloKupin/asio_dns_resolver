@@ -25,7 +25,7 @@ protected:
 
     std::string domain_ = "tuposoft.com";
 
-    std::vector<std::uint8_t> bytes_ = {
+    std::vector<std::uint8_t> query_bytes_ = {
             0x16, 0x6a, 0x01, 0x20, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x08, 0x74, 0x75,
             0x70, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x03, 0x63, 0x6f, 0x6d, 0x00, 0x00, 0x0f, 0x00, 0x01,
     };
@@ -73,7 +73,7 @@ TEST_F(dns_test, from_dns_label_format) {
 }
 
 TEST_F(dns_test, header_deserialization) {
-    std::istringstream input{{bytes_.begin(), bytes_.end()}};
+    std::istringstream input{{query_bytes_.begin(), query_bytes_.end()}, std::ios::binary};
     auto actual = dns_header{};
     input >> actual;
     ASSERT_EQ(header_, actual);
@@ -82,13 +82,14 @@ TEST_F(dns_test, header_deserialization) {
 TEST_F(dns_test, header_serialization) {
     std::ostringstream output{std::ios::binary};
     output << header_;
-    const auto expected = std::string{bytes_.begin(), bytes_.begin() + 12};
+    const auto expected = std::string{query_bytes_.begin(), query_bytes_.begin() + 12};
     ASSERT_EQ(output.str(), expected);
 }
 
 TEST_F(dns_test, question_deserialization) {
-    auto input = std::istringstream{{bytes_.begin() + static_cast<std::uint8_t>(byte_offsets_::question), bytes_.end()},
-                                    std::ios::binary};
+    auto input = std::istringstream{
+            {query_bytes_.begin() + static_cast<std::uint8_t>(byte_offsets_::question), query_bytes_.end()},
+            std::ios::binary};
     auto question = dns_question{};
     input >> question;
     ASSERT_EQ(question_, question);
@@ -98,13 +99,20 @@ TEST_F(dns_test, question_serialization) {
     auto output = std::ostringstream{std::ios::binary};
     output << question_;
     const auto expected =
-            std::string{bytes_.begin() + static_cast<std::uint8_t>(byte_offsets_::question), bytes_.end()};
+            std::string{query_bytes_.begin() + static_cast<std::uint8_t>(byte_offsets_::question), query_bytes_.end()};
     ASSERT_EQ(output.str(), expected);
 }
 
 TEST_F(dns_test, query_deserialization) {
-    auto input = std::istringstream{{bytes_.begin(), bytes_.end()}, std::ios::binary};
+    auto input = std::istringstream{{query_bytes_.begin(), query_bytes_.end()}, std::ios::binary};
     auto query = dns_query{};
     input >> query;
     ASSERT_EQ(query_, query);
+}
+
+TEST_F(dns_test, query_serialization) {
+    auto output = std::ostringstream{std::ios::binary};
+    output << query_;
+    const auto expected = std::string{query_bytes_.begin(), query_bytes_.end()};
+    ASSERT_EQ(output.str(), expected);
 }
