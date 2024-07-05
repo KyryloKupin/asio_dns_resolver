@@ -1,10 +1,10 @@
 set(PROJECT_NAMESPACE "tuposoft")
 
-set(BASE_PROJECT_NAME "starter")
+set(BASE_PROJECT_NAME "tuporesolv")
 set(TEST_PROJECT_NAME "${BASE_PROJECT_NAME}_test")
 set(STANDALONE_PROJECT_NAME "${BASE_PROJECT_NAME}_exec")
 
-set(PROJECT_DESCRIPTION "Yet another project")
+set(PROJECT_DESCRIPTION "A DNS Resolver written in C++ based on ASIO.")
 set(PROJECT_VERSION 0.0.1.0)
 
 set(CMAKE_MINIMUM_REQUIRED_VERSION 3.24)

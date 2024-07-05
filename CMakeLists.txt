@@ -7,10 +7,22 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
 
 CPMAddPackage("gh:fmtlib/fmt#10.2.1")
+CPMAddPackage(
+        NAME asio
+        GITHUB_REPOSITORY chriskohlhoff/asio
+        GIT_TAG asio-1-30-2
+        DOWNLOAD_ONLY yes
+)
+
+set(LIBRARIES "fmt::fmt")
+if (${WIN32})
+    add_definitions(-D_WIN32_WINNT=0x0A00)
+    list(APPEND LIBRARIES "ws2_32")
+endif ()
 
 add_library(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
-target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARIES})
+target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> $<BUILD_INTERFACE:${asio_SOURCE_DIR}/asio/include>)
 
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.11.2")
 
