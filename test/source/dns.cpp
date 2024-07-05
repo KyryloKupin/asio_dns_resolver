@@ -30,8 +30,14 @@ protected:
             0x70, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x03, 0x63, 0x6f, 0x6d, 0x00, 0x00, 0x0f, 0x00, 0x01,
     };
 
+    std::vector<std::uint8_t> response_bytes_ = {
+            0xc9, 0x12, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x74, 0x75, 0x70, 0x6f,
+            0x73, 0x6f, 0x66, 0x74, 0x03, 0x63, 0x6f, 0x6d, 0x00, 0x00, 0x0f, 0x00, 0x01, 0xc0, 0x0c, 0x00, 0x0f,
+            0x00, 0x01, 0x00, 0x00, 0x01, 0x2c, 0x00, 0x09, 0x00, 0x0a, 0x04, 0x6d, 0x61, 0x69, 0x6c, 0xc0, 0x0c,
+    };
+
     dns_header header_{
-            .id = ntohs(0x6a16),
+            .id = 0x166a,
             .rd = 1,
             .ad = 1,
             .qdcount = 1,
@@ -49,9 +55,25 @@ protected:
             .question = question_,
     };
 
+    dns_answer answers_{.name = domain_,
+                        .type = dns_record_e::MX,
+                        .cls = 1,
+                        .ttl = 0x012c,
+                        .rdlength = 0x09,
+                        .rdata = {
+                                0x04,
+                                0x6d,
+                                0x61,
+                                0x69,
+                                0x6c,
+                                0xc0,
+                                0x0c,
+                        }};
+
     enum class byte_offsets_ : std::uint8_t {
         header = 0,
         question = 12,
+        answers = 30,
     };
 
 private:
@@ -115,4 +137,12 @@ TEST_F(dns_test, query_serialization) {
     output << query_;
     const auto expected = std::string{query_bytes_.begin(), query_bytes_.end()};
     ASSERT_EQ(output.str(), expected);
+}
+
+TEST_F(dns_test, answer_deserialization) {
+    auto input = std::istringstream{{response_bytes_.begin(), response_bytes_.end()}, std::ios::binary};
+    input.seekg(static_cast<std::streamoff>(byte_offsets_::answers));
+    auto expected = dns_answer{};
+    input >> expected;
+    ASSERT_EQ(answers_, expected);
 }

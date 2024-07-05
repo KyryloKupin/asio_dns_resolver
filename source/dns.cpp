@@ -1,6 +1,9 @@
 #include "dns.hpp"
 
 namespace tuposoft {
+    constexpr auto BYTE_SIZE = std::uint8_t{0x08U};
+    constexpr auto FULL_BYTE = std::uint8_t{0xFF};
+
     auto to_dns_label_format(const std::string &domain) -> std::vector<std::uint8_t> {
         auto label_format = std::vector<std::uint8_t>{};
         std::size_t start{};
@@ -26,15 +29,27 @@ namespace tuposoft {
         auto qname_buffer = std::vector<char>{};
 
         while (true) {
-            char length = 0;
-            input.read(&length, sizeof(length));
+            const auto length = read_from_stream_and_copy<std::uint8_t>(input);
+
             if (length == 0) {
                 break; // End of qname
             }
-            auto label = std::vector<char>(length);
-            input.read(label.data(), length);
-            qname_buffer.insert(qname_buffer.end(), label.begin(), label.end());
-            qname_buffer.push_back('.');
+
+            if (constexpr auto UPPER_SIX_BITS_MASK = 0xC0U; (length & UPPER_SIX_BITS_MASK) == UPPER_SIX_BITS_MASK) {
+                constexpr auto LOWER_SIX_BITS_MASK = 0x3FU;
+                const auto ptr = read_from_stream_and_copy<std::uint8_t>(input);
+                const auto current_pos = input.tellg();
+                input.seekg((length & LOWER_SIX_BITS_MASK) << BYTE_SIZE | ptr);
+                auto pointed_labes = from_dns_label_format(input);
+                qname_buffer.insert(qname_buffer.end(), pointed_labes.begin(), pointed_labes.end());
+                qname_buffer.push_back('.');
+                input.seekg(current_pos);
+            } else {
+                auto label = std::vector<char>(length);
+                input.read(label.data(), length);
+                qname_buffer.insert(qname_buffer.end(), label.begin(), label.end());
+                qname_buffer.push_back('.');
+            }
         }
 
         if (!qname_buffer.empty()) {
@@ -53,6 +68,16 @@ namespace tuposoft {
         std::memcpy(&object, buffer.data(), sizeof(T));
 
         return object;
+    }
+
+    template<typename T = std::uint16_t>
+    auto read_big_endian(std::istream &input) -> T {
+        T result{};
+        for (int i = 0; i < sizeof(T); ++i) {
+            result <<= BYTE_SIZE;
+            result |= static_cast<T>(input.get()) & FULL_BYTE;
+        }
+        return result;
     }
 
     auto get_flag_bits(const unsigned value, const unsigned position, const unsigned mask) -> unsigned {
@@ -172,6 +197,8 @@ namespace tuposoft {
         return input;
     }
 
+    auto dns_answer::operator==(const dns_answer &other) const -> bool { return tied() == other.tied(); }
+
     auto operator<<(std::ostream &output, const dns_answer &answer) -> decltype(output) {
         const auto label_format = to_dns_label_format(answer.name);
         output.write(reinterpret_cast<const char *>(label_format.data()),
@@ -197,23 +224,19 @@ namespace tuposoft {
         answer.name = from_dns_label_format(input);
 
         // Read type, cls, ttl, rdlength, and rdata
-        std::uint16_t type_network = 0;
-        std::uint16_t cls_network = 0;
-        std::uint32_t ttl_network = 0;
-        std::uint16_t rdlength_network = 0;
-
-        input.read(reinterpret_cast<char *>(&type_network), sizeof(type_network));
-        input.read(reinterpret_cast<char *>(&cls_network), sizeof(cls_network));
-        input.read(reinterpret_cast<char *>(&ttl_network), sizeof(ttl_network));
-        input.read(reinterpret_cast<char *>(&rdlength_network), sizeof(rdlength_network));
+        const auto type_network = read_big_endian(input);
+        const auto cls_network = read_big_endian(input);
+        const auto ttl_network = read_big_endian<std::uint32_t>(input);
+        const auto rdlength_network = read_big_endian(input);
 
         answer.type = static_cast<dns_record_e>(ntohs(type_network));
         answer.cls = ntohs(cls_network);
         answer.ttl = ntohl(ttl_network);
         answer.rdlength = ntohs(rdlength_network);
 
-        answer.rdata.resize(answer.rdlength);
-        input.read(reinterpret_cast<char *>(answer.rdata.data()), static_cast<std::streamsize>(answer.rdata.size()));
+        auto buffer = std::vector<char>(answer.rdlength);
+        input.read(buffer.data(), answer.rdlength);
+        answer.rdata = std::vector<std::uint8_t>{buffer.begin(), buffer.end()};
 
         return input;
     }

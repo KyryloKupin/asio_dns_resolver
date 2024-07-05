@@ -15,6 +15,9 @@ namespace tuposoft {
     template<typename T>
     auto read_from_stream_and_copy(std::istream &input) -> T;
 
+    template<typename T>
+    auto read_big_endian(std::istream &input) -> T;
+
     auto get_flag_bits(unsigned value, unsigned position, unsigned mask = 1U) -> unsigned;
 
     struct dns_header {
@@ -98,6 +101,11 @@ namespace tuposoft {
         std::uint32_t ttl;
         std::uint16_t rdlength;
         std::vector<std::uint8_t> rdata;
+
+        auto operator==(const dns_answer &) const -> bool;
+
+    private:
+        [[nodiscard]] auto tied() const { return std::tie(name, type, cls, ttl, rdlength, rdata); }
     };
 
     // Overload << operator to write data to stream
