@@ -67,11 +67,11 @@ namespace tuposoft {
     // }
 
     enum flag_positions : std::uint8_t {
-        rd_position = 15U,
-        tc_position = 14U,
-        aa_position = 13U,
-        opcode_position = 9U,
-        qr_position = 8U,
+        rd_position = 8U,
+        tc_position = 9U,
+        aa_position = 10U,
+        opcode_position = 11U,
+        qr_position = 15U,
         rcode_position = 0U,
         cd_position = 4U,
         ad_position = 5U,
@@ -83,41 +83,37 @@ namespace tuposoft {
     constexpr unsigned OPCODE_MASK = 0xFU;
     constexpr unsigned RCODE_MASK = 0xFU;
 
+    auto dns_header::operator==(const dns_header &other) const -> bool { return tied() == other.tied(); }
+
     auto operator>>(std::istream &input, dns_header &header) -> decltype(input) {
         header.id = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
 
-        const unsigned int flags = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
+        const std::uint16_t flags = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
 
         header.rd = flags >> rd_position & SINGLE_BIT_MASK;
-        header.tc = (flags >> tc_position) & SINGLE_BIT_MASK;
-        header.aa = (flags >> aa_position) & SINGLE_BIT_MASK;
-        header.opcode = (flags >> opcode_position) & OPCODE_MASK;
-        header.qr = (flags >> qr_position) & SINGLE_BIT_MASK;
+        header.tc = flags >> tc_position & SINGLE_BIT_MASK;
+        header.aa = flags >> aa_position & SINGLE_BIT_MASK;
+        header.opcode = flags >> opcode_position & OPCODE_MASK;
+        header.qr = flags >> qr_position & SINGLE_BIT_MASK;
         header.rcode = flags & RCODE_MASK;
-        header.cd = (flags >> cd_position) & SINGLE_BIT_MASK;
-        header.ad = (flags >> ad_position) & SINGLE_BIT_MASK;
-        header.z = (flags >> z_position) & SINGLE_BIT_MASK;
-        header.ra = (flags >> ra_position) & SINGLE_BIT_MASK;
+        header.cd = flags >> cd_position & SINGLE_BIT_MASK;
+        header.ad = flags >> ad_position & SINGLE_BIT_MASK;
+        header.z = flags >> z_position & SINGLE_BIT_MASK;
+        header.ra = flags >> ra_position & SINGLE_BIT_MASK;
 
-        input.read(reinterpret_cast<char *>(&header.qdcount), sizeof(header.qdcount));
-        header.qdcount = ntohs(header.qdcount);
-
-        input.read(reinterpret_cast<char *>(&header.ancount), sizeof(header.ancount));
-        header.ancount = ntohs(header.ancount);
-
-        input.read(reinterpret_cast<char *>(&header.nscount), sizeof(header.nscount));
-        header.nscount = ntohs(header.nscount);
-
-        input.read(reinterpret_cast<char *>(&header.arcount), sizeof(header.arcount));
-        header.arcount = ntohs(header.arcount);
+        header.qdcount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
+        header.ancount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
+        header.nscount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
+        header.arcount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
 
         return input;
     }
 
     auto operator<<(std::ostream &output, const dns_header &header) -> decltype(output) {
-        const std::uint16_t flags = header.rd << 8U | header.tc << 9U | header.aa << 10U | header.opcode << 11U |
-                                    header.qr << 15U | header.rcode | header.cd << 4U | header.ad << 5U |
-                                    header.z << 6U | header.ra << 7U;
+        const std::uint16_t flags = header.rd << rd_position | header.tc << tc_position | header.aa << aa_position |
+                                    header.opcode << opcode_position | header.qr << qr_position |
+                                    header.rcode << rcode_position | header.cd << cd_position |
+                                    header.ad << ad_position | header.z << z_position | header.ra << ra_position;
 
         const auto id_network = htons(header.id);
         const auto flags_network = htons(flags);
@@ -149,7 +145,7 @@ namespace tuposoft {
 
     auto operator<<(std::ostream &output, const dns_question &question) -> decltype(output) {
         const auto label_format = to_dns_label_format(question.qname);
-        output.write(reinterpret_cast<const char *>(label_format.data()),
+        output.write(std::string{label_format.begin(), label_format.end()}.c_str(),
                      static_cast<std::streamsize>(label_format.size()));
 
         // Write qtype and qclass

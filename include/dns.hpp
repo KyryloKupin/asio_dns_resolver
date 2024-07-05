@@ -36,6 +36,13 @@ namespace tuposoft {
         std::uint16_t ancount{}; // Number of answer entries
         std::uint16_t nscount{}; // Number of authority entries
         std::uint16_t arcount{}; // Number of resource entries
+
+        auto operator==(const dns_header &other) const -> bool;
+
+    private:
+        [[nodiscard]] auto tied() const {
+            return std::tie(id, rd, tc, aa, opcode, qr, rcode, cd, ad, z, ra, qdcount, ancount, nscount, arcount);
+        }
     };
 
     auto operator>>(std::istream &input, dns_header &header) -> decltype(input);
