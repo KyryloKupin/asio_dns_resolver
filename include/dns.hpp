@@ -15,7 +15,7 @@ namespace tuposoft {
     template<typename T>
     auto read_from_stream_and_copy(std::istream &input) -> T;
 
-    template<typename T>
+    template<typename T = std::uint16_t>
     auto read_big_endian(std::istream &input) -> T;
 
     auto get_flag_bits(unsigned value, unsigned position, unsigned mask = 1U) -> unsigned;

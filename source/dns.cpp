@@ -77,7 +77,7 @@ namespace tuposoft {
         return object;
     }
 
-    template<typename T = std::uint16_t>
+    template<typename T>
     auto read_big_endian(std::istream &input) -> T {
         T result{};
         for (int i = 0; i < sizeof(T); ++i) {
@@ -85,10 +85,6 @@ namespace tuposoft {
             result |= static_cast<T>(input.get()) & FULL_BYTE;
         }
         return result;
-    }
-
-    auto get_flag_bits(const unsigned value, const unsigned position, const unsigned mask) -> unsigned {
-        return (value >> position) & mask;
     }
 
     // dns_header::dns_header() {
@@ -231,10 +227,10 @@ namespace tuposoft {
         answer.name = from_dns_label_format(input);
 
         // Read type, cls, ttl, rdlength, and rdata
-        const auto type_network = read_big_endian(input);
-        const auto cls_network = read_big_endian(input);
+        const auto type_network = read_big_endian<std::uint16_t>(input);
+        const auto cls_network = read_big_endian<std::uint16_t>(input);
         const auto ttl_network = read_big_endian<std::uint32_t>(input);
-        const auto rdlength_network = read_big_endian(input);
+        const auto rdlength_network = read_big_endian<std::uint16_t>(input);
 
         answer.type = static_cast<dns_record_e>(type_network);
         answer.cls = cls_network;
