@@ -53,6 +53,12 @@ namespace tuposoft {
 
     auto operator<<(std::ostream &output, const dns_header &header) -> decltype(output);
 
+    enum struct message_byte_offsets : std::uint8_t {
+        HEADER = 0,
+        QUESTION = 12,
+        ANSWERS = 30,
+    };
+
     enum struct dns_record_e : std::uint8_t {
         A = 1, // IPv4 address record
         NS = 2, // Delegates a DNS zone to use the given authoritative name servers
@@ -96,7 +102,7 @@ namespace tuposoft {
     auto operator>>(std::istream &input, dns_question &question) -> decltype(input);
 
     struct mx_rdata {
-        std::uint16_t preference;
+        std::uint16_t preference{};
         std::string mx;
 
         auto operator==(const mx_rdata &) const -> bool;
@@ -115,10 +121,26 @@ namespace tuposoft {
         std::uint16_t rdlength;
         std::variant<std::vector<std::uint8_t>, std::vector<mx_rdata>> rdata;
 
+        friend auto operator>>(std::istream &input, dns_answer &answer) -> decltype(input);
+
         auto operator==(const dns_answer &) const -> bool;
 
     private:
         [[nodiscard]] auto tied() const { return std::tie(name, type, cls, ttl, rdlength, rdata); }
+
+        auto parse_mx(std::istream &input) {
+            const auto current_pos = input.tellg();
+            input.seekg(0x06);
+            const auto ancount = read_big_endian(input);
+            input.seekg(current_pos);
+            auto rdata = std::vector<mx_rdata>(ancount);
+
+            for (auto i{0}; i < ancount; ++i) {
+                rdata[i] = {read_big_endian(input), from_dns_label_format(input)};
+            }
+
+            this->rdata = rdata;
+        };
     };
 
 
@@ -126,7 +148,7 @@ namespace tuposoft {
     //    auto operator<<(std::ostream &output, const dns_answer &answer) -> decltype(output);
 
     // Overload >> operator to read data from stream
-    auto operator>>(std::istream &input, dns_answer &answer) -> decltype(input);
+
 
     struct dns_query {
         dns_header header;
@@ -151,7 +173,5 @@ namespace tuposoft {
 
     private:
         [[nodiscard]] auto tied() const { return std::tie(header, question, answer); }
-
-        auto parse_mx(std::istream &input);
     };
 } // namespace tuposoft

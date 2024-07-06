@@ -113,17 +113,17 @@ namespace tuposoft {
     //     }(generator);
     // }
 
-    enum flag_positions : std::uint8_t {
-        rd_position = 8U,
-        tc_position = 9U,
-        aa_position = 10U,
-        opcode_position = 11U,
-        qr_position = 15U,
-        rcode_position = 0U,
-        cd_position = 4U,
-        ad_position = 5U,
-        z_position = 6U,
-        ra_position = 7U,
+    enum flag_positions : unsigned char {
+        RD_POSITION = 8U,
+        TC_POSITION = 9U,
+        AA_POSITION = 10U,
+        OPCODE_POSITION = 11U,
+        QR_POSITION = 15U,
+        RCODE_POSITION = 0U,
+        CD_POSITION = 4U,
+        AD_POSITION = 5U,
+        Z_POSITION = 6U,
+        RA_POSITION = 7U,
     };
 
     constexpr unsigned SINGLE_BIT_MASK = 1U;
@@ -135,18 +135,18 @@ namespace tuposoft {
     auto operator>>(std::istream &input, dns_header &header) -> decltype(input) {
         header.id = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
 
-        const std::uint16_t flags = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
+        const unsigned short flags = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
 
-        header.rd = flags >> rd_position & SINGLE_BIT_MASK;
-        header.tc = flags >> tc_position & SINGLE_BIT_MASK;
-        header.aa = flags >> aa_position & SINGLE_BIT_MASK;
-        header.opcode = flags >> opcode_position & OPCODE_MASK;
-        header.qr = flags >> qr_position & SINGLE_BIT_MASK;
+        header.rd = flags >> RD_POSITION & SINGLE_BIT_MASK;
+        header.tc = flags >> TC_POSITION & SINGLE_BIT_MASK;
+        header.aa = flags >> AA_POSITION & SINGLE_BIT_MASK;
+        header.opcode = flags >> OPCODE_POSITION & OPCODE_MASK;
+        header.qr = flags >> QR_POSITION & SINGLE_BIT_MASK;
         header.rcode = flags & RCODE_MASK;
-        header.cd = flags >> cd_position & SINGLE_BIT_MASK;
-        header.ad = flags >> ad_position & SINGLE_BIT_MASK;
-        header.z = flags >> z_position & SINGLE_BIT_MASK;
-        header.ra = flags >> ra_position & SINGLE_BIT_MASK;
+        header.cd = flags >> CD_POSITION & SINGLE_BIT_MASK;
+        header.ad = flags >> AD_POSITION & SINGLE_BIT_MASK;
+        header.z = flags >> Z_POSITION & SINGLE_BIT_MASK;
+        header.ra = flags >> RA_POSITION & SINGLE_BIT_MASK;
 
         header.qdcount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
         header.ancount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
@@ -157,10 +157,10 @@ namespace tuposoft {
     }
 
     auto operator<<(std::ostream &output, const dns_header &header) -> decltype(output) {
-        const std::uint16_t flags = header.rd << rd_position | header.tc << tc_position | header.aa << aa_position |
-                                    header.opcode << opcode_position | header.qr << qr_position |
-                                    header.rcode << rcode_position | header.cd << cd_position |
-                                    header.ad << ad_position | header.z << z_position | header.ra << ra_position;
+        const std::uint16_t flags = header.rd << RD_POSITION | header.tc << TC_POSITION | header.aa << AA_POSITION |
+                                    header.opcode << OPCODE_POSITION | header.qr << QR_POSITION |
+                                    header.rcode << RCODE_POSITION | header.cd << CD_POSITION |
+                                    header.ad << AD_POSITION | header.z << Z_POSITION | header.ra << RA_POSITION;
 
         const auto id_network = htons(header.id);
         const auto flags_network = htons(flags);
@@ -221,32 +221,6 @@ namespace tuposoft {
 
     auto dns_answer::operator==(const dns_answer &other) const -> bool { return tied() == other.tied(); }
 
-    //    auto operator<<(std::ostream &output, const dns_answer &answer) -> decltype(output) {
-    //        const auto label_format = to_dns_label_format(answer.name);
-    //        output.write(reinterpret_cast<const char *>(label_format.data()),
-    //                     static_cast<std::streamsize>(label_format.size()));
-    //
-    //        // Write type, cls, ttl, rdlength, and rdata
-    //        const auto type_network = htons(static_cast<std::uint16_t>(answer.type));
-    //        decltype(type_network) cls_network = htons(answer.cls);
-    //        const auto ttl_network = htonl(answer.ttl);
-    //        decltype(type_network) rdlength_network = htons(answer.rdlength);
-    //
-    //        output.write(reinterpret_cast<const char *>(&type_network), sizeof(type_network));
-    //        output.write(reinterpret_cast<const char *>(&cls_network), sizeof(cls_network));
-    //        output.write(reinterpret_cast<const char *>(&ttl_network), sizeof(ttl_network));
-    //        output.write(reinterpret_cast<const char *>(&rdlength_network), sizeof(rdlength_network));
-    //
-    //        output.write(reinterpret_cast<const char *>(answer.rdata.data()),
-    //                     static_cast<std::streamsize>(answer.rdata.size()));
-    //
-    //        if (answer.rdata.index() == 1) {
-    //
-    //        }
-    //
-    //        return output;
-    //    }
-
     auto operator>>(std::istream &input, dns_answer &answer) -> decltype(input) {
         answer.name = from_dns_label_format(input);
 
@@ -261,9 +235,25 @@ namespace tuposoft {
         answer.ttl = ttl_network;
         answer.rdlength = rdlength_network;
 
-        auto buffer = std::vector<char>(answer.rdlength);
-        input.read(buffer.data(), answer.rdlength);
-        answer.rdata = std::vector<std::uint8_t>{buffer.begin(), buffer.end()};
+        switch (answer.type) {
+            case dns_record_e::A:
+            case dns_record_e::NS:
+            case dns_record_e::CNAME:
+            case dns_record_e::SOA:
+            case dns_record_e::PTR:
+            case dns_record_e::MX:
+                answer.parse_mx(input);
+                break;
+            case dns_record_e::TXT:
+            case dns_record_e::AAAA:
+            case dns_record_e::SRV:
+            case dns_record_e::OPT:
+            case dns_record_e::DS:
+            case dns_record_e::RRSIG:
+            case dns_record_e::NSEC:
+            case dns_record_e::DNSKEY:
+                break;
+        }
 
         return input;
     }
@@ -288,40 +278,10 @@ namespace tuposoft {
         return input;
     }
 
-    auto dns_response::parse_mx(std::istream &input) {
-        auto rdata = std::vector<mx_rdata>(header.ancount);
-
-        for (int i = 0; i < header.ancount; ++i) {
-            rdata[i] = {read_big_endian(input), from_dns_label_format(input)};
-        }
-
-        answer.rdata = rdata;
-    }
-
     auto operator>>(std::istream &input, dns_response &response) -> decltype(input) {
         input >> response.header;
         input >> response.question;
         input >> response.answer;
-
-        switch (response.answer.type) {
-            case dns_record_e::A:
-            case dns_record_e::NS:
-            case dns_record_e::CNAME:
-            case dns_record_e::SOA:
-            case dns_record_e::PTR:
-            case dns_record_e::MX:
-                response.parse_mx(input);
-                break;
-            case dns_record_e::TXT:
-            case dns_record_e::AAAA:
-            case dns_record_e::SRV:
-            case dns_record_e::OPT:
-            case dns_record_e::DS:
-            case dns_record_e::RRSIG:
-            case dns_record_e::NSEC:
-            case dns_record_e::DNSKEY:
-                break;
-        }
 
         return input;
     }

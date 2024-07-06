@@ -62,23 +62,7 @@ protected:
                         .cls = 1,
                         .ttl = 0x012c,
                         .rdlength = 0x09,
-                        .rdata = std::vector<std::uint8_t>{
-                                0x00,
-                                0x0a,
-                                0x04,
-                                0x6d,
-                                0x61,
-                                0x69,
-                                0x6c,
-                                0xc0,
-                                0x0c,
-                        }};
-
-    enum class byte_offsets_ : std::uint8_t {
-        header = 0,
-        question = 12,
-        answers = 30,
-    };
+                        .rdata = std::vector<mx_rdata>{{10, "mail.tuposoft.com"}}};
 
 private:
     enum class label_length_ : uint8_t {
@@ -114,7 +98,7 @@ TEST_F(dns_test, header_serialization) {
 
 TEST_F(dns_test, question_deserialization) {
     auto input = std::istringstream{
-            {query_bytes_.begin() + static_cast<std::uint8_t>(byte_offsets_::question), query_bytes_.end()},
+            {query_bytes_.begin() + static_cast<std::uint8_t>(message_byte_offsets::QUESTION), query_bytes_.end()},
             std::ios::binary};
     auto question = dns_question{};
     input >> question;
@@ -125,7 +109,7 @@ TEST_F(dns_test, question_serialization) {
     auto output = std::ostringstream{std::ios::binary};
     output << question_;
     const auto expected =
-            std::string{query_bytes_.begin() + static_cast<std::uint8_t>(byte_offsets_::question), query_bytes_.end()};
+            std::string{query_bytes_.begin() + static_cast<std::uint8_t>(message_byte_offsets::QUESTION), query_bytes_.end()};
     ASSERT_EQ(output.str(), expected);
 }
 
@@ -145,7 +129,7 @@ TEST_F(dns_test, query_serialization) {
 
 TEST_F(dns_test, answer_deserialization) {
     auto input = std::istringstream{{response_bytes_.begin(), response_bytes_.end()}, std::ios::binary};
-    input.seekg(static_cast<std::streamoff>(byte_offsets_::answers));
+    input.seekg(static_cast<std::streamoff>(message_byte_offsets::ANSWERS));
     auto expected = dns_answer{};
     input >> expected;
     ASSERT_EQ(answers_, expected);
@@ -155,7 +139,5 @@ TEST_F(dns_test, response_deserialization) {
     auto input = std::istringstream{{response_bytes_.begin(), response_bytes_.end()}, std::ios::binary};
     auto actual = dns_response{};
     input >> actual;
-    ASSERT_NO_THROW({
-        actual;
-    });
+    ASSERT_NO_THROW({ actual; });
 }
