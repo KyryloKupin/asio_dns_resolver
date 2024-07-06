@@ -1,9 +1,12 @@
 #pragma once
 
-#include <asio.hpp>
-
+#include <cstddef>
+#include <cstdint>
 #include <iostream>
-#include <random>
+#include <string>
+#include <tuple>
+#include <variant>
+#include <vector>
 
 namespace tuposoft {
     // Convert domain name to DNS label format
@@ -17,8 +20,6 @@ namespace tuposoft {
 
     template<typename T = std::uint16_t>
     auto read_big_endian(std::istream &input) -> T;
-
-    auto get_flag_bits(unsigned value, unsigned position, unsigned mask = 1U) -> unsigned;
 
     struct dns_header {
         std::uint16_t id{}; // Identification
@@ -94,13 +95,25 @@ namespace tuposoft {
     // Overload >> operator to read data from stream
     auto operator>>(std::istream &input, dns_question &question) -> decltype(input);
 
+    struct mx_rdata {
+        std::uint16_t preference;
+        std::string mx;
+
+        auto operator==(const mx_rdata &) const -> bool;
+
+    private:
+        [[nodiscard]] auto tied() const { return std::tie(preference, mx); }
+    };
+
+    auto operator>>(std::istream &input, mx_rdata &mx_rdata) -> decltype(input);
+
     struct dns_answer {
         std::string name;
         dns_record_e type;
         std::uint16_t cls;
         std::uint32_t ttl;
         std::uint16_t rdlength;
-        std::vector<std::uint8_t> rdata;
+        std::variant<std::vector<std::uint8_t>, std::vector<mx_rdata>> rdata;
 
         auto operator==(const dns_answer &) const -> bool;
 
@@ -108,8 +121,9 @@ namespace tuposoft {
         [[nodiscard]] auto tied() const { return std::tie(name, type, cls, ttl, rdlength, rdata); }
     };
 
+
     // Overload << operator to write data to stream
-    auto operator<<(std::ostream &output, const dns_answer &answer) -> decltype(output);
+    //    auto operator<<(std::ostream &output, const dns_answer &answer) -> decltype(output);
 
     // Overload >> operator to read data from stream
     auto operator>>(std::istream &input, dns_answer &answer) -> decltype(input);
@@ -128,8 +142,16 @@ namespace tuposoft {
 
     auto operator>>(std::istream &input, dns_query &request) -> decltype(input);
 
-
     struct dns_response : dns_query {
         dns_answer answer;
+
+        auto operator==(const dns_response &) const -> bool;
+
+        friend auto operator>>(std::istream &input, dns_response &response) -> decltype(input);
+
+    private:
+        [[nodiscard]] auto tied() const { return std::tie(header, question, answer); }
+
+        auto parse_mx(std::istream &input);
     };
 } // namespace tuposoft

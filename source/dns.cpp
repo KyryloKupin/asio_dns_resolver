@@ -1,8 +1,22 @@
 #include "dns.hpp"
 
+#include <asio.hpp>
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <ios>
+#include <istream>
+#include <ostream>
+#include <string>
+#include <vector>
+
+
 namespace tuposoft {
     constexpr auto BYTE_SIZE = std::uint8_t{0x08U};
     constexpr auto FULL_BYTE = std::uint8_t{0xFF};
+    constexpr auto UPPER_SIX_BITS_MASK = std::uint8_t{0xC0U};
 
     auto to_dns_label_format(const std::string &domain) -> std::vector<std::uint8_t> {
         auto label_format = std::vector<std::uint8_t>{};
@@ -15,12 +29,17 @@ namespace tuposoft {
             label_format.insert(label_format.end(), domain.begin() + static_cast<long int>(start),
                                 domain.begin() + static_cast<long int>(end));
         }
-        // Last label
-        const auto length = static_cast<std::uint8_t>(domain.size() - start);
-        label_format.push_back(length);
-        label_format.insert(label_format.end(), domain.begin() + static_cast<long int>(start), domain.end());
-        // Null terminator for the qname
-        label_format.push_back(0);
+
+        if ((static_cast<unsigned>(domain.at(0)) & UPPER_SIX_BITS_MASK) == UPPER_SIX_BITS_MASK) {
+            label_format.insert(label_format.end(), domain.begin() + static_cast<long int>(start), domain.end());
+        } else {
+            // Last label
+            const auto length = static_cast<std::uint8_t>(domain.size() - start);
+            label_format.push_back(length);
+            label_format.insert(label_format.end(), domain.begin() + static_cast<long int>(start), domain.end());
+            // Null terminator for the qname
+            label_format.push_back(0);
+        }
 
         return label_format;
     }
@@ -40,7 +59,7 @@ namespace tuposoft {
                 break; // End of qname
             }
 
-            if (constexpr auto UPPER_SIX_BITS_MASK = 0xC0U; (length & UPPER_SIX_BITS_MASK) == UPPER_SIX_BITS_MASK) {
+            if ((length & UPPER_SIX_BITS_MASK) == UPPER_SIX_BITS_MASK) {
                 constexpr auto LOWER_SIX_BITS_MASK = 0x3FU;
                 const auto ptr = read_from_stream_and_copy<std::uint8_t>(input);
                 const auto current_pos = input.tellg();
@@ -67,7 +86,7 @@ namespace tuposoft {
     }
 
     template<typename T>
-    auto tuposoft::read_from_stream_and_copy(std::istream &input) -> T {
+    auto read_from_stream_and_copy(std::istream &input) -> T {
         std::array<char, sizeof(T)> buffer{};
         input.read(buffer.data(), sizeof(T));
 
@@ -202,26 +221,31 @@ namespace tuposoft {
 
     auto dns_answer::operator==(const dns_answer &other) const -> bool { return tied() == other.tied(); }
 
-    auto operator<<(std::ostream &output, const dns_answer &answer) -> decltype(output) {
-        const auto label_format = to_dns_label_format(answer.name);
-        output.write(reinterpret_cast<const char *>(label_format.data()),
-                     static_cast<std::streamsize>(label_format.size()));
-
-        // Write type, cls, ttl, rdlength, and rdata
-        const auto type_network = htons(static_cast<std::uint16_t>(answer.type));
-        const auto cls_network = htons(answer.cls);
-        const auto ttl_network = htonl(answer.ttl);
-        const auto rdlength_network = htons(answer.rdlength);
-
-        output.write(reinterpret_cast<const char *>(&type_network), sizeof(type_network));
-        output.write(reinterpret_cast<const char *>(&cls_network), sizeof(cls_network));
-        output.write(reinterpret_cast<const char *>(&ttl_network), sizeof(ttl_network));
-        output.write(reinterpret_cast<const char *>(&rdlength_network), sizeof(rdlength_network));
-        output.write(reinterpret_cast<const char *>(answer.rdata.data()),
-                     static_cast<std::streamsize>(answer.rdata.size()));
-
-        return output;
-    }
+    //    auto operator<<(std::ostream &output, const dns_answer &answer) -> decltype(output) {
+    //        const auto label_format = to_dns_label_format(answer.name);
+    //        output.write(reinterpret_cast<const char *>(label_format.data()),
+    //                     static_cast<std::streamsize>(label_format.size()));
+    //
+    //        // Write type, cls, ttl, rdlength, and rdata
+    //        const auto type_network = htons(static_cast<std::uint16_t>(answer.type));
+    //        decltype(type_network) cls_network = htons(answer.cls);
+    //        const auto ttl_network = htonl(answer.ttl);
+    //        decltype(type_network) rdlength_network = htons(answer.rdlength);
+    //
+    //        output.write(reinterpret_cast<const char *>(&type_network), sizeof(type_network));
+    //        output.write(reinterpret_cast<const char *>(&cls_network), sizeof(cls_network));
+    //        output.write(reinterpret_cast<const char *>(&ttl_network), sizeof(ttl_network));
+    //        output.write(reinterpret_cast<const char *>(&rdlength_network), sizeof(rdlength_network));
+    //
+    //        output.write(reinterpret_cast<const char *>(answer.rdata.data()),
+    //                     static_cast<std::streamsize>(answer.rdata.size()));
+    //
+    //        if (answer.rdata.index() == 1) {
+    //
+    //        }
+    //
+    //        return output;
+    //    }
 
     auto operator>>(std::istream &input, dns_answer &answer) -> decltype(input) {
         answer.name = from_dns_label_format(input);
@@ -255,4 +279,52 @@ namespace tuposoft {
         input >> request.question;
         return input;
     }
+
+    auto dns_response::operator==(const dns_response &other) const -> bool { return tied() == other.tied(); }
+
+    auto operator>>(std::istream &input, mx_rdata &mx_rdata) -> decltype(input) {
+        mx_rdata.preference = read_big_endian(input);
+        mx_rdata.mx = from_dns_label_format(input);
+        return input;
+    }
+
+    auto dns_response::parse_mx(std::istream &input) {
+        auto rdata = std::vector<mx_rdata>(header.ancount);
+
+        for (int i = 0; i < header.ancount; ++i) {
+            rdata[i] = {read_big_endian(input), from_dns_label_format(input)};
+        }
+
+        answer.rdata = rdata;
+    }
+
+    auto operator>>(std::istream &input, dns_response &response) -> decltype(input) {
+        input >> response.header;
+        input >> response.question;
+        input >> response.answer;
+
+        switch (response.answer.type) {
+            case dns_record_e::A:
+            case dns_record_e::NS:
+            case dns_record_e::CNAME:
+            case dns_record_e::SOA:
+            case dns_record_e::PTR:
+            case dns_record_e::MX:
+                response.parse_mx(input);
+                break;
+            case dns_record_e::TXT:
+            case dns_record_e::AAAA:
+            case dns_record_e::SRV:
+            case dns_record_e::OPT:
+            case dns_record_e::DS:
+            case dns_record_e::RRSIG:
+            case dns_record_e::NSEC:
+            case dns_record_e::DNSKEY:
+                break;
+        }
+
+        return input;
+    }
+
+    auto mx_rdata::operator==(const mx_rdata &other) const -> bool { return tied() == other.tied(); }
 } // namespace tuposoft

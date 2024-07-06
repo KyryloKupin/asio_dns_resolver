@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <ios>
+
 using namespace tuposoft;
 
 constexpr auto STRING_TERMINATOR = '\0';
@@ -60,7 +62,7 @@ protected:
                         .cls = 1,
                         .ttl = 0x012c,
                         .rdlength = 0x09,
-                        .rdata = {
+                        .rdata = std::vector<std::uint8_t>{
                                 0x00,
                                 0x0a,
                                 0x04,
@@ -147,4 +149,13 @@ TEST_F(dns_test, answer_deserialization) {
     auto expected = dns_answer{};
     input >> expected;
     ASSERT_EQ(answers_, expected);
+}
+
+TEST_F(dns_test, response_deserialization) {
+    auto input = std::istringstream{{response_bytes_.begin(), response_bytes_.end()}, std::ios::binary};
+    auto actual = dns_response{};
+    input >> actual;
+    ASSERT_NO_THROW({
+        actual;
+    });
 }
