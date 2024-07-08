@@ -1,5 +1,7 @@
 #include "dns_answer.hpp"
 
+#include <tuple>
+
 using namespace tuposoft;
 
 auto tuposoft::tie_dns_answer(const dns_answer &answer) {
