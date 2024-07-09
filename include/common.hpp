@@ -8,9 +8,10 @@
 #include <vector>
 
 namespace tuposoft {
-    constexpr auto BYTE_SIZE = std::uint8_t{0x08U};
-    constexpr auto FULL_BYTE = std::uint8_t{0xFF};
-    constexpr auto UPPER_SIX_BITS_MASK = std::uint8_t{0xC0U};
+    constexpr auto BYTE_SIZE = static_cast<unsigned char>(0x08U);
+    constexpr auto FULL_BYTE = static_cast<unsigned char>(0xFFU);
+    constexpr auto UPPER_TWO_BITS_MASK = static_cast<unsigned char>(0xC0U);
+    constexpr auto LOWER_SIX_BITS_MASK = static_cast<unsigned char>(0x3FU);
 
     auto to_dns_label_format(const std::string &domain) -> std::vector<std::uint8_t>;
 
