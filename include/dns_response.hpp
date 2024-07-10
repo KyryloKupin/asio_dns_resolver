@@ -7,7 +7,7 @@
 
 namespace tuposoft {
     struct dns_response : dns_query {
-        dns_answer answer;
+        std::vector<dns_answer> answers;
     };
 
     auto tie_dns_response(const dns_response &);

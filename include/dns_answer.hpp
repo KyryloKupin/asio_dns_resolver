@@ -12,7 +12,7 @@ namespace tuposoft {
         std::uint16_t cls;
         std::uint32_t ttl;
         std::uint16_t rdlength;
-        std::variant<std::vector<std::uint8_t>, std::vector<mx_rdata>> rdata;
+        std::variant<std::uint8_t, mx_rdata> rdata;
     };
 
     auto operator>>(std::istream &input, dns_answer &answer) -> decltype(input);

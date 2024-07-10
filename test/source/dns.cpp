@@ -57,12 +57,12 @@ protected:
             .question = question_,
     };
 
-    dns_answer answers_{.name = domain_,
+    dns_answer answer_{.name = domain_,
                         .type = dns_record_e::MX,
                         .cls = 1,
                         .ttl = 0x012c,
                         .rdlength = 0x09,
-                        .rdata = std::vector<mx_rdata>{{10, "mail.tuposoft.com"}}};
+                        .rdata = mx_rdata{10, "mail.tuposoft.com"}};
 
 private:
     enum class label_length_ : uint8_t {
@@ -108,8 +108,8 @@ TEST_F(dns_test, question_deserialization) {
 TEST_F(dns_test, question_serialization) {
     auto output = std::ostringstream{std::ios::binary};
     output << question_;
-    const auto expected =
-            std::string{query_bytes_.begin() + static_cast<std::uint8_t>(message_byte_offsets::QUESTION), query_bytes_.end()};
+    const auto expected = std::string{query_bytes_.begin() + static_cast<std::uint8_t>(message_byte_offsets::QUESTION),
+                                      query_bytes_.end()};
     ASSERT_EQ(output.str(), expected);
 }
 
@@ -132,7 +132,7 @@ TEST_F(dns_test, answer_deserialization) {
     input.seekg(static_cast<std::streamoff>(message_byte_offsets::ANSWERS));
     auto expected = dns_answer{};
     input >> expected;
-    ASSERT_EQ(answers_, expected);
+    ASSERT_EQ(answer_, expected);
 }
 
 TEST_F(dns_test, response_deserialization) {

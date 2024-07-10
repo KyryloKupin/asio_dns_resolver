@@ -31,7 +31,7 @@ namespace tuposoft {
         }
 
         template<dns_record_e T>
-        auto query(const std::string domain) -> asio::awaitable<std::vector<typename rdata<T>::type>> {
+        auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer>> {
             const auto query = create_query(domain, T);
             asio::streambuf buf;
             std::ostream out(&buf);
@@ -46,7 +46,7 @@ namespace tuposoft {
             auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
             instream >> dns_response;
 
-            co_return std::get<std::vector<mx_rdata>>(dns_response.answer.rdata);
+            co_return dns_response.answers;
         };
 
     private:

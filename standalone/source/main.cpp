@@ -10,8 +10,9 @@ auto reader(std::shared_ptr<tuposoft::resolver> resolver, asio::ip::tcp::socket 
         std::istream input(&buffer);
         std::string domain;
         input >> domain;
-        for (auto result = co_await resolver->query<tuposoft::dns_record_e::MX>(domain);
-             auto [preference, mx]: result) {
+        for (auto answers = co_await resolver->query<tuposoft::dns_record_e::MX>(domain);
+             auto [name, type, cls, ttl, rdlength, rdata]: answers) {
+            auto [preference, mx] = std::get<tuposoft::mx_rdata>(rdata);
             auto message = fmt::format("Preference: {}, MX: {}\n", preference, mx);
             co_await socket.async_send(asio::buffer(message), asio::use_awaitable);
         }
@@ -22,7 +23,7 @@ auto listener() -> asio::awaitable<void> {
     const auto executor = co_await asio::this_coro::executor;
     constexpr auto PORT_NUM = 55555;
     auto acceptor = asio::ip::tcp::acceptor{executor, {asio::ip::tcp::v4(), PORT_NUM}};
-    auto resolver = std::make_shared<tuposoft::resolver>(executor);
+    const auto resolver = std::make_shared<tuposoft::resolver>(executor);
     co_await resolver->connect("1.1.1.1");
     for (;;) {
         auto socket = co_await acceptor.async_accept(asio::use_awaitable);

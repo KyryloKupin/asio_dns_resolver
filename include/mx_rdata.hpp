@@ -14,5 +14,5 @@ namespace tuposoft {
 
     auto operator>>(std::istream &input, mx_rdata &mx_rdata) -> decltype(input);
 
-    auto parse_mx(std::istream &) -> std::vector<mx_rdata>;
+    auto parse_mx(std::istream &) -> mx_rdata;
 } // namespace tuposoft
