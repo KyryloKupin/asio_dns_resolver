@@ -11,16 +11,6 @@
 #include "dns_response.hpp"
 
 namespace tuposoft {
-    template<dns_record_e T>
-    struct rdata {
-        using type = void;
-    };
-
-    template<>
-    struct rdata<dns_record_e::MX> {
-        using type = mx_rdata;
-    };
-
     class resolver {
     public:
         explicit resolver(const asio::any_io_executor &executor) : socket_(executor) {}
@@ -31,7 +21,7 @@ namespace tuposoft {
         }
 
         template<dns_record_e T>
-        auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer>> {
+        auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
             const auto query = create_query(domain, T);
             asio::streambuf buf;
             std::ostream out(&buf);
@@ -42,7 +32,7 @@ namespace tuposoft {
             auto input = std::array<char, 1024>{};
             const auto reply = co_await socket_.async_receive(asio::buffer(input), asio::use_awaitable);
 
-            auto dns_response = tuposoft::dns_response{};
+            auto dns_response = tuposoft::dns_response<T>{};
             auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
             instream >> dns_response;
 

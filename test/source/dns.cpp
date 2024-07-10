@@ -57,12 +57,8 @@ protected:
             .question = question_,
     };
 
-    dns_answer answer_{.name = domain_,
-                        .type = dns_record_e::MX,
-                        .cls = 1,
-                        .ttl = 0x012c,
-                        .rdlength = 0x09,
-                        .rdata = mx_rdata{10, "mail.tuposoft.com"}};
+    dns_answer<dns_record_e::MX> answer_{
+            .name = domain_, .cls = 1, .ttl = 0x012c, .rdlength = 0x09, .rdata = mx_rdata{10, "mail.tuposoft.com"}};
 
 private:
     enum class label_length_ : uint8_t {
@@ -130,14 +126,14 @@ TEST_F(dns_test, query_serialization) {
 TEST_F(dns_test, answer_deserialization) {
     auto input = std::istringstream{{response_bytes_.begin(), response_bytes_.end()}, std::ios::binary};
     input.seekg(static_cast<std::streamoff>(message_byte_offsets::ANSWERS));
-    auto expected = dns_answer{};
+    auto expected = dns_answer<dns_record_e::MX>{};
     input >> expected;
     ASSERT_EQ(answer_, expected);
 }
 
 TEST_F(dns_test, response_deserialization) {
     auto input = std::istringstream{{response_bytes_.begin(), response_bytes_.end()}, std::ios::binary};
-    auto actual = dns_response{};
+    auto actual = dns_response<dns_record_e::MX>{};
     input >> actual;
     ASSERT_NO_THROW({ actual; });
 }
