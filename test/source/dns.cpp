@@ -82,9 +82,6 @@ TEST_F(dns_test, header_deserialization) {
     std::istringstream input{{query_bytes_.begin(), query_bytes_.end()}, std::ios::binary};
     auto actual = dns_header{};
     input >> actual;
-    ASSERT_EQ(header_.id, actual.id);
-    ASSERT_EQ(header_.rd, actual.rd);
-    ASSERT_EQ(header_.tc, actual.tc);
     ASSERT_EQ(header_, actual);
 }
 
