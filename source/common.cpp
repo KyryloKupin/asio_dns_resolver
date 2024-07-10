@@ -1,7 +1,6 @@
 #include "common.hpp"
 
 #include <ranges>
-#include <algorithm>
 
 using namespace tuposoft;
 
@@ -30,22 +29,6 @@ auto tuposoft::to_dns_label_format(const std::string &domain) -> std::vector<std
 
     return label_format;
 }
-
-/*
- * 1. Check next byte
- * 2. If the byte has two highest bits set, it's a pointer
- * 3. If it's a pointer, read the next byte, both bytes give the offset
- * 4. Set the input read position to the offset, read the label
- * 5. Otherwise, it's a label, read the label
- * 6. Repeat 1, 2, 3
- *
- *
- *
- *
- *
- *
- *
- */
 
 auto read_label_from_stream(std::istream &input, const unsigned char len) -> std::string {
     std::vector<char> buffer(len);

@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include <span>
+#include <algorithm>
 
 using namespace tuposoft;
 
