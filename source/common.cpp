@@ -1,6 +1,7 @@
 #include "common.hpp"
 
 #include <ranges>
+#include <algorithm>
 
 using namespace tuposoft;
 
