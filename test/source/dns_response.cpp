@@ -36,26 +36,26 @@ TEST(dns_response, parse_mx) {
                      "alt2.aspmx.l.google.com",
              }},
     };
-    auto EXPECTED_DNS_RESPONSE = dns_response{{
-                                                      .header =
-                                                              {
-                                                                      .id = RESPONSE_ID,
-                                                                      .rd = 1,
-                                                                      .qr = 1,
-                                                                      .ra = 1,
-                                                                      .qdcount = 1,
-                                                                      .ancount = 5,
-                                                                      .nscount = 0,
-                                                                      .arcount = 1,
-                                                              },
-                                                      .question =
-                                                              {
-                                                                      .qname = "cience.com",
-                                                                      .qtype = dns_record_e::MX,
-                                                                      .qclass = 1,
-                                                              },
-                                              },
-                                              EXPECTED_DNS_RESPONSE_ANSWERS};
+    auto EXPECTED_DNS_RESPONSE = dns_response<dns_record_e::MX>{{
+                                                                        .header =
+                                                                                {
+                                                                                        .id = RESPONSE_ID,
+                                                                                        .rd = 1,
+                                                                                        .qr = 1,
+                                                                                        .ra = 1,
+                                                                                        .qdcount = 1,
+                                                                                        .ancount = 5,
+                                                                                        .nscount = 0,
+                                                                                        .arcount = 1,
+                                                                                },
+                                                                        .question =
+                                                                                {
+                                                                                        .qname = "cience.com",
+                                                                                        .qtype = dns_record_e::MX,
+                                                                                        .qclass = 1,
+                                                                                },
+                                                                },
+                                                                EXPECTED_DNS_RESPONSE_ANSWERS};
 
     auto span = std::span{
             "'o\201\200\000\001\000\005\000\000\000\001\006cience\003com\000\000\017\000\001\300\f\000\017\000\001\000"
