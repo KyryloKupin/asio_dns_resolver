@@ -13,9 +13,7 @@ namespace tuposoft {
     }
 
     auto operator==(const dns_header &first, const dns_header &second) -> bool {
-        const auto tied_first = tie_dns_header(first);
-        const auto tied_second = tie_dns_header(second);
-        return tied_first == tied_second;
+        return tie_dns_header(first) == tie_dns_header(second);
     }
 
     auto operator>>(std::istream &input, dns_header &header) -> decltype(input) {

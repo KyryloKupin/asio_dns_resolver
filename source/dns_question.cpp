@@ -28,12 +28,8 @@ namespace tuposoft {
 
     auto operator>>(std::istream &input, dns_question &question) -> decltype(input) {
         question.qname = from_dns_label_format(input);
-
-        const auto qtype_network = read_from_stream_and_copy<std::uint16_t>(input);
-        const auto qclass_network = read_from_stream_and_copy<std::uint16_t>(input);
-
-        question.qtype = static_cast<dns_record_e>(ntohs(qtype_network));
-        question.qclass = ntohs(qclass_network);
+        question.qtype = static_cast<dns_record_e>(read_big_endian(input));
+        question.qclass = read_big_endian(input);
 
         return input;
     }

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <array>
 #include <cstdint>
-#include <cstring>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,17 +14,6 @@ namespace tuposoft {
     auto to_dns_label_format(const std::string &domain) -> std::vector<std::uint8_t>;
 
     auto from_dns_label_format(std::istream &input) -> std::string;
-
-    template<typename T>
-    auto read_from_stream_and_copy(std::istream &input) -> T {
-        std::array<char, sizeof(T)> buffer{};
-        input.read(buffer.data(), sizeof(T));
-
-        T object{};
-        std::memcpy(&object, buffer.data(), sizeof(T));
-
-        return object;
-    }
 
     template<typename T = unsigned short>
     auto read_big_endian(std::istream &input) -> T {
