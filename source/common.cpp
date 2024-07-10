@@ -1,5 +1,7 @@
 #include "common.hpp"
 
+#include <ranges>
+
 using namespace tuposoft;
 
 auto tuposoft::to_dns_label_format(const std::string &domain) -> std::vector<std::uint8_t> {
