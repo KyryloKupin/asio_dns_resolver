@@ -3,6 +3,8 @@
 #include "dns_record_e.hpp"
 #include "mx_rdata.hpp"
 
+#include <tuple>
+
 namespace tuposoft {
     template<dns_record_e>
     struct rdata {
