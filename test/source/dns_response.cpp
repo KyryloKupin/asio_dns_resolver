@@ -8,34 +8,35 @@ using namespace tuposoft;
 
 TEST(dns_response, parse_mx) {
     constexpr auto RESPONSE_ID = 0x276f;
+    constexpr auto TTL = 300;
     std::vector<dns_answer<dns_record_e::MX>> EXPECTED_DNS_RESPONSE_ANSWERS = {
-            {"cience.com", dns_record_e::MX, 1, 300, 19,
+            {"cience.com", dns_record_e::MX, 1, TTL, 19,
              mx_rdata{
                      1,
                      "aspmx.l.google.com",
              }},
-            {"cience.com", dns_record_e::MX, 1, 300, 9,
+            {"cience.com", dns_record_e::MX, 1, TTL, 9,
              mx_rdata{
                      10,
                      "alt3.aspmx.l.google.com",
              }},
-            {"cience.com", dns_record_e::MX, 1, 300, 9,
+            {"cience.com", dns_record_e::MX, 1, TTL, 9,
              mx_rdata{
                      10,
                      "alt4.aspmx.l.google.com",
              }},
-            {"cience.com", dns_record_e::MX, 1, 300, 9,
+            {"cience.com", dns_record_e::MX, 1, TTL, 9,
              mx_rdata{
                      5,
                      "alt1.aspmx.l.google.com",
              }},
-            {"cience.com", dns_record_e::MX, 1, 300, 9,
+            {"cience.com", dns_record_e::MX, 1, TTL, 9,
              mx_rdata{
                      5,
                      "alt2.aspmx.l.google.com",
              }},
     };
-    auto EXPECTED_DNS_RESPONSE = dns_response<dns_record_e::MX>{{
+    auto EXPECTED_DNS_RESPONSE = dns_response{{
                                                       .header =
                                                               {
                                                                       .id = RESPONSE_ID,
@@ -68,5 +69,7 @@ TEST(dns_response, parse_mx) {
     auto actual_dns_response = dns_response<dns_record_e::MX>{};
     input >> actual_dns_response;
 
-    ASSERT_EQ(EXPECTED_DNS_RESPONSE, actual_dns_response);
+    ASSERT_EQ(EXPECTED_DNS_RESPONSE.header, actual_dns_response.header) << "The header doesn't match!";
+    ASSERT_EQ(EXPECTED_DNS_RESPONSE.question, actual_dns_response.question) << "The question doesn't match!";
+    ASSERT_EQ(EXPECTED_DNS_RESPONSE.answers, actual_dns_response.answers) << "The answers don't match!";
 }
