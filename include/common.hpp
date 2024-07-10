@@ -28,7 +28,7 @@ namespace tuposoft {
         return object;
     }
 
-    template<typename T = std::uint16_t>
+    template<typename T = unsigned short>
     auto read_big_endian(std::istream &input) -> T {
         T result{};
         for (int i = 0; i < sizeof(T); ++i) {

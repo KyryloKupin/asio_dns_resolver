@@ -19,9 +19,8 @@ namespace tuposoft {
     }
 
     auto operator>>(std::istream &input, dns_header &header) -> decltype(input) {
-        header.id = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
-
-        const unsigned short flags = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
+        header.id = read_big_endian(input);
+        const unsigned short flags = read_big_endian(input);
 
         header.rd = flags >> RD_POSITION & SINGLE_BIT_MASK;
         header.tc = flags >> TC_POSITION & SINGLE_BIT_MASK;
@@ -34,19 +33,19 @@ namespace tuposoft {
         header.z = flags >> Z_POSITION & SINGLE_BIT_MASK;
         header.ra = flags >> RA_POSITION & SINGLE_BIT_MASK;
 
-        header.qdcount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
-        header.ancount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
-        header.nscount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
-        header.arcount = ntohs(read_from_stream_and_copy<std::uint16_t>(input));
+        header.qdcount = read_big_endian(input);
+        header.ancount = read_big_endian(input);
+        header.nscount = read_big_endian(input);
+        header.arcount = read_big_endian(input);
 
         return input;
     }
 
     auto operator<<(std::ostream &output, const dns_header &header) -> decltype(output) {
-        const std::uint16_t flags = header.rd << RD_POSITION | header.tc << TC_POSITION | header.aa << AA_POSITION |
-                                    header.opcode << OPCODE_POSITION | header.qr << QR_POSITION |
-                                    header.rcode << RCODE_POSITION | header.cd << CD_POSITION |
-                                    header.ad << AD_POSITION | header.z << Z_POSITION | header.ra << RA_POSITION;
+        const unsigned short flags = header.rd << RD_POSITION | header.tc << TC_POSITION | header.aa << AA_POSITION |
+                                     header.opcode << OPCODE_POSITION | header.qr << QR_POSITION |
+                                     header.rcode << RCODE_POSITION | header.cd << CD_POSITION |
+                                     header.ad << AD_POSITION | header.z << Z_POSITION | header.ra << RA_POSITION;
 
         const auto id_network = htons(header.id);
         const auto flags_network = htons(flags);
