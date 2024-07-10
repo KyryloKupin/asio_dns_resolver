@@ -22,7 +22,7 @@ namespace tuposoft {
 
         template<dns_record_e T>
         auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
-            const auto query = create_query(domain, T);
+            const auto query = create_query<T>(domain);
             asio::streambuf buf;
             std::ostream out(&buf);
             out << query;
@@ -46,7 +46,8 @@ namespace tuposoft {
             return std::uniform_int_distribution<unsigned short>(0, std::numeric_limits<unsigned short>::max())(gen);
         }
 
-        auto create_query(const std::string &domain, const dns_record_e type) -> decltype(auto) {
+        template<dns_record_e type>
+        auto create_query(const std::string &domain) -> decltype(auto) {
             return dns_query{.header =
                                      {
                                              .id = generate_id(),
