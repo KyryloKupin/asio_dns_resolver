@@ -30,7 +30,7 @@ namespace tuposoft {
     auto parse_rdata(std::istream &) -> typename rdata<T>::type;
 
     template<>
-    inline auto tuposoft::parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata<dns_record_e::MX>::type {
+    inline auto parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata<dns_record_e::MX>::type {
         return {read_big_endian<std::uint16_t>(input), from_dns_label_format(input)};
     }
 

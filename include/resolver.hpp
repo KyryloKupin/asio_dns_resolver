@@ -1,14 +1,11 @@
 #pragma once
 
+#include "dns_query.hpp"
 #include "dns_record_e.hpp"
-#include "mx_rdata.hpp"
+#include "dns_response.hpp"
 
 #include <asio.hpp>
-
 #include <random>
-
-#include "dns_query.hpp"
-#include "dns_response.hpp"
 
 namespace tuposoft {
     class resolver {
