@@ -67,4 +67,4 @@ jobs:
       - name: Test
         run: |
           cd ${{ env.BUILD_OUTPUT_DIR }}
-          ctest --build-config ${{ env.BUILD_TYPE }}
+          ctest --build-config ${{ env.BUILD_TYPE }} --extra-verbose

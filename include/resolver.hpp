@@ -37,14 +37,10 @@ namespace tuposoft {
         };
 
     private:
-        auto generate_id() -> decltype(auto) {
-            std::random_device rand;
-            std::mt19937 gen(rand());
-            return std::uniform_int_distribution<unsigned short>(0, std::numeric_limits<unsigned short>::max())(gen);
-        }
+        static auto generate_id() -> unsigned short;
 
         template<dns_record_e type>
-        auto create_query(const std::string &domain) -> decltype(auto) {
+        static auto create_query(const std::string &domain) {
             return dns_query{.header =
                                      {
                                              .id = generate_id(),
