@@ -10,27 +10,27 @@ TEST(dns_response, parse_mx) {
     constexpr auto RESPONSE_ID = 0x276f;
     constexpr auto TTL = 300;
     std::vector<dns_answer<dns_record_e::MX>> EXPECTED_DNS_RESPONSE_ANSWERS = {
-            {"cience.com", dns_record_e::MX, 1, TTL, 19,
+            {"foobar.com", dns_record_e::MX, 1, TTL, 19,
              mx_rdata{
                      1,
                      "aspmx.l.google.com",
              }},
-            {"cience.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
              mx_rdata{
                      10,
                      "alt3.aspmx.l.google.com",
              }},
-            {"cience.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
              mx_rdata{
                      10,
                      "alt4.aspmx.l.google.com",
              }},
-            {"cience.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
              mx_rdata{
                      5,
                      "alt1.aspmx.l.google.com",
              }},
-            {"cience.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
              mx_rdata{
                      5,
                      "alt2.aspmx.l.google.com",
@@ -50,7 +50,7 @@ TEST(dns_response, parse_mx) {
                                                                                 },
                                                                         .question =
                                                                                 {
-                                                                                        .qname = "cience.com",
+                                                                                        .qname = "foobar.com",
                                                                                         .qtype = dns_record_e::MX,
                                                                                         .qclass = 1,
                                                                                 },
@@ -58,7 +58,7 @@ TEST(dns_response, parse_mx) {
                                                                 EXPECTED_DNS_RESPONSE_ANSWERS};
 
     auto span = std::span{
-            "'o\201\200\000\001\000\005\000\000\000\001\006cience\003com\000\000\017\000\001\300\f\000\017\000\001\000"
+            "'o\201\200\000\001\000\005\000\000\000\001\006foobar\003com\000\000\017\000\001\300\f\000\017\000\001\000"
             "\000\001,\000\023\000\001\005aspmx\001l\006google\300\023\300\f\000\017\000\001\000\000\001,"
             "\000\t\000\n\004alt3\300*\300\f\000\017\000\001\000\000\001,\000\t\000\n\004alt4\300*"
             "\300\f\000\017\000\001\000\000\001,\000\t\000\005\004alt1\300*\300\f\000\017\000\001\000\000\001,"
