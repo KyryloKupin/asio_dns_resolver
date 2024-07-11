@@ -23,11 +23,10 @@ namespace tuposoft {
         template<dns_record_e T>
         auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
             const auto query = create_query<T>(domain);
-            asio::streambuf buf;
-            std::ostream out(&buf);
+            auto buf = asio::streambuf{};
+            auto out = std::ostream{&buf};
             out << query;
             co_await socket_.async_send(buffer(buf.data(), buf.size()), asio::use_awaitable);
-            out.flush();
 
             auto input = std::array<char, 1024>{};
             const auto reply = co_await socket_.async_receive(asio::buffer(input), asio::use_awaitable);
