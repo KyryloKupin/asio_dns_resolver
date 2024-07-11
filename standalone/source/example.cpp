@@ -55,8 +55,10 @@ auto listener(asio::ip::tcp::acceptor acceptor) -> asio::awaitable<void> {
 }
 
 auto main() -> int {
+    constexpr auto PORT = 8080;
+
     auto io_context = asio::io_context{};
-    auto acceptor = asio::ip::tcp::acceptor{io_context, {asio::ip::tcp::v4(), 8080}};
+    auto acceptor = asio::ip::tcp::acceptor{io_context, {asio::ip::tcp::v4(), PORT}};
     co_spawn(io_context, listener(std::move(acceptor)), asio::detached);
     io_context.run();
 

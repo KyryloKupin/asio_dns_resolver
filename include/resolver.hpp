@@ -36,10 +36,10 @@ namespace tuposoft {
             instream >> dns_response;
 
             co_return dns_response.answers;
-        };
+        }
 
     private:
-        static auto generate_id() -> unsigned short;
+        static auto generate_id() -> std::uint16_t;
 
         template<dns_record_e type>
         static auto create_query(const std::string &domain) {

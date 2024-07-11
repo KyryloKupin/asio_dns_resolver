@@ -38,8 +38,8 @@ auto read_label_from_stream(std::istream &input, const std::uint8_t len) -> std:
     return std::string{buffer.begin(), buffer.end()} + '.';
 }
 
-auto calculate_new_position(std::istream &input, const unsigned next_byte) -> unsigned short {
-    return (next_byte & LOWER_SIX_BITS_MASK) << BYTE_SIZE | static_cast<unsigned>(input.get());
+auto calculate_new_position(std::istream &input, const std::uint16_t next_byte) -> std::uint16_t {
+    return (next_byte & LOWER_SIX_BITS_MASK) << BYTE_SIZE | static_cast<std::uint8_t>(input.get());
 }
 
 auto tuposoft::from_dns_label_format(std::istream &input) -> std::string {

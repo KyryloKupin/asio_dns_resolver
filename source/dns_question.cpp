@@ -16,12 +16,8 @@ namespace tuposoft {
         output.write(std::string{label_format.begin(), label_format.end()}.c_str(),
                      static_cast<std::streamsize>(label_format.size()));
 
-        // Write qtype and qclass
-        const auto qtype_network = htons(static_cast<std::uint16_t>(question.qtype));
-        const auto qclass_network = htons(question.qclass);
-
-        output.write(reinterpret_cast<const char *>(&qtype_network), sizeof(qtype_network));
-        output.write(reinterpret_cast<const char *>(&qclass_network), sizeof(qclass_network));
+        write_big_endian(output, static_cast<std::uint16_t>(question.qtype));
+        write_big_endian(output, question.qclass);
 
         return output;
     }
