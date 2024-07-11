@@ -7,14 +7,16 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
 
 CPMAddPackage("gh:fmtlib/fmt#10.2.1")
+
+set(BOOST_INCLUDE_LIBRARIES "asio;beast")
 CPMAddPackage(
-        NAME asio
-        GITHUB_REPOSITORY chriskohlhoff/asio
-        GIT_TAG asio-1-30-2
-        DOWNLOAD_ONLY yes
+        NAME Boost
+        VERSION 1.85.0
+        URL https://github.com/boostorg/boost/releases/download/boost-1.85.0/boost-1.85.0-cmake.tar.xz
+        OPTIONS "BOOST_SKIP_INSTALL_RULES OFF"
 )
 
-set(LIBRARIES "fmt::fmt")
+set(LIBRARIES "fmt::fmt" "boost_asio" "boost_beast")
 if (${WIN32})
     add_definitions(-D_WIN32_WINNT=0x0A00)
     list(APPEND LIBRARIES "ws2_32" "wsock32")
@@ -22,7 +24,7 @@ endif ()
 
 add_library(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARIES})
-target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> $<BUILD_INTERFACE:${asio_SOURCE_DIR}/asio/include>)
+target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIRS} $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.11.2")
 
@@ -35,5 +37,5 @@ packageProject(
         INCLUDE_DESTINATION include/${PROJECT_NAME}-${PROJECT_VERSION}
         VERSION_HEADER "${PROJECT_NAME}/version.hpp"
         COMPATIBILITY SameMajorVersion
-        DEPENDENCIES ${DEPENDENCIES}
+        DEPENDENCIES ${LIBRARIES}
 )

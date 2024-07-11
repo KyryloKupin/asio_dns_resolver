@@ -1,6 +1,6 @@
 #include "dns_header.hpp"
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 constexpr unsigned SINGLE_BIT_MASK = 1U;
 constexpr unsigned OPCODE_MASK = 0xFU;

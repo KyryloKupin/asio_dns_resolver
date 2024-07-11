@@ -1,6 +1,6 @@
 #include "dns_question.hpp"
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 namespace tuposoft {
     auto tie_dns_question(const dns_question &question) {

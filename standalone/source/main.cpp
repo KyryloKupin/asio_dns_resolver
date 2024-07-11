@@ -1,7 +1,9 @@
 #include "resolver.hpp"
 
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include "fmt/format.h"
+
+using namespace boost;
 
 auto reader(std::shared_ptr<tuposoft::resolver> resolver, asio::ip::tcp::socket socket) -> asio::awaitable<void> {
     for (;;) {

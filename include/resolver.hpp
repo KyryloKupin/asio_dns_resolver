@@ -4,8 +4,11 @@
 #include "dns_record_e.hpp"
 #include "dns_response.hpp"
 
-#include <asio.hpp>
+#include "boost/asio.hpp"
+
 #include <random>
+
+using namespace boost;
 
 namespace tuposoft {
     class resolver {
