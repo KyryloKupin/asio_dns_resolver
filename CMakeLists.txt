@@ -8,7 +8,7 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/
 
 CPMAddPackage("gh:fmtlib/fmt#10.2.1")
 
-set(BOOST_INCLUDE_LIBRARIES "asio;beast")
+set(BOOST_INCLUDE_LIBRARIES "asio")
 CPMAddPackage(
         NAME Boost
         VERSION 1.85.0
@@ -16,7 +16,7 @@ CPMAddPackage(
         OPTIONS "BOOST_SKIP_INSTALL_RULES OFF"
 )
 
-set(LIBRARIES "fmt::fmt" "boost_asio" "boost_beast")
+set(LIBRARIES "fmt::fmt" "boost_asio")
 if (${WIN32})
     add_definitions(-D_WIN32_WINNT=0x0A00)
     list(APPEND LIBRARIES "ws2_32" "wsock32")
