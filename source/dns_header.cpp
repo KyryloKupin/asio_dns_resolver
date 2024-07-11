@@ -45,19 +45,12 @@ namespace tuposoft {
                                      header.rcode << RCODE_POSITION | header.cd << CD_POSITION |
                                      header.ad << AD_POSITION | header.z << Z_POSITION | header.ra << RA_POSITION;
 
-        const auto id_network = htons(header.id);
-        const auto flags_network = htons(flags);
-        const auto qdcount_network = htons(header.qdcount);
-        const auto ancount_network = htons(header.ancount);
-        const auto nscount_network = htons(header.nscount);
-        const auto arcount_network = htons(header.arcount);
-
-        output.write(reinterpret_cast<const char *>(&id_network), sizeof(id_network));
-        output.write(reinterpret_cast<const char *>(&flags_network), sizeof(flags_network));
-        output.write(reinterpret_cast<const char *>(&qdcount_network), sizeof(qdcount_network));
-        output.write(reinterpret_cast<const char *>(&ancount_network), sizeof(ancount_network));
-        output.write(reinterpret_cast<const char *>(&nscount_network), sizeof(nscount_network));
-        output.write(reinterpret_cast<const char *>(&arcount_network), sizeof(arcount_network));
+        write_big_endian(output, header.id);
+        write_big_endian(output, flags);
+        write_big_endian(output, header.qdcount);
+        write_big_endian(output, header.ancount);
+        write_big_endian(output, header.nscount);
+        write_big_endian(output, header.arcount);
 
         return output;
     }

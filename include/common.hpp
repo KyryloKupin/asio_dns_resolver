@@ -1,6 +1,9 @@
 #pragma once
 
+#include <asio.hpp>
+
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -23,6 +26,15 @@ namespace tuposoft {
             result |= static_cast<T>(input.get()) & FULL_BYTE;
         }
         return result;
+    }
+
+    template<typename T = unsigned short>
+    auto write_big_endian(std::ostream &output, T val) -> decltype(output) {
+        std::array<char, sizeof(val)> buffer{};
+        auto val_be = htons(val);
+        std::memcpy(buffer.data(), &val_be, sizeof(val));
+        output.write(buffer.data(), buffer.size());
+        return output;
     }
 
     enum struct message_byte_offsets : std::uint8_t {

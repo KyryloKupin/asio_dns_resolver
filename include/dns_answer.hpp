@@ -3,6 +3,8 @@
 #include "dns_record_e.hpp"
 #include "mx_rdata.hpp"
 
+#include <array>
+#include <sstream>
 #include <tuple>
 
 namespace tuposoft {
@@ -14,6 +16,11 @@ namespace tuposoft {
     template<>
     struct rdata<dns_record_e::MX> {
         using type = mx_rdata;
+    };
+
+    template<>
+    struct rdata<dns_record_e::A> {
+        using type = std::string;
     };
 
     template<dns_record_e T>
@@ -30,9 +37,10 @@ namespace tuposoft {
     auto parse_rdata(std::istream &) -> typename rdata<T>::type;
 
     template<>
-    inline auto parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata<dns_record_e::MX>::type {
-        return {read_big_endian<std::uint16_t>(input), from_dns_label_format(input)};
-    }
+    auto parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata<dns_record_e::MX>::type;
+
+    template<>
+    auto parse_rdata<dns_record_e::A>(std::istream &input) -> rdata<dns_record_e::A>::type;
 
     template<dns_record_e T>
     auto operator>>(std::istream &input, dns_answer<T> &answer) -> decltype(input) {

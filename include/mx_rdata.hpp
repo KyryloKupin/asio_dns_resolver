@@ -13,5 +13,4 @@ namespace tuposoft {
     auto tie_mx_rdata(const mx_rdata &);
 
     auto operator>>(std::istream &input, mx_rdata &mx_rdata) -> decltype(input);
-
 } // namespace tuposoft
