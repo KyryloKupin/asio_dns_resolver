@@ -7,12 +7,12 @@
 
 namespace tuposoft {
     template<dns_record_e>
-    struct rdata_t {
+    struct rdata {
         using type = std::string;
     };
 
     template<>
-    struct rdata_t<dns_record_e::MX> {
+    struct rdata<dns_record_e::MX> {
         using type = mx_rdata;
     };
 
@@ -23,19 +23,19 @@ namespace tuposoft {
         std::uint16_t cls{};
         std::uint32_t ttl{};
         std::uint16_t rdlength{};
-        typename rdata_t<T>::type rdata;
+        typename rdata<T>::type rdata;
     };
 
     template<dns_record_e T>
-    auto parse_rdata(std::istream &input) -> typename rdata_t<T>::type {
+    auto parse_rdata(std::istream &input) -> typename rdata<T>::type {
         return from_dns_label_format(input);
     };
 
     template<>
-    auto parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata_t<dns_record_e::MX>::type;
+    auto parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata<dns_record_e::MX>::type;
 
     template<>
-    auto parse_rdata<dns_record_e::A>(std::istream &input) -> rdata_t<dns_record_e::A>::type;
+    auto parse_rdata<dns_record_e::A>(std::istream &input) -> rdata<dns_record_e::A>::type;
 
     template<dns_record_e T>
     auto operator>>(std::istream &input, dns_answer<T> &answer) -> decltype(input) {
