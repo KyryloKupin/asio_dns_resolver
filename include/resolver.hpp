@@ -30,7 +30,7 @@ namespace tuposoft {
             co_await socket_.async_send(buffer(buf.data(), buf.size()), asio::use_awaitable);
 
             auto input = std::array<char, 1024>{};
-            const auto reply = co_await socket_.async_receive(asio::buffer(input), asio::use_awaitable);
+            co_await socket_.async_receive(asio::buffer(input), asio::use_awaitable);
 
             auto dns_response = tuposoft::dns_response<T>{};
             auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
@@ -43,7 +43,7 @@ namespace tuposoft {
         static auto generate_id() -> std::uint16_t;
 
         template<dns_record_e T>
-        static auto create_query(const std::string &name) {
+        auto create_query(const std::string &name) {
             return dns_query{.header =
                                      {
                                              .id = generate_id(),
@@ -78,4 +78,20 @@ namespace tuposoft {
 
         asio::ip::udp::socket socket_;
     };
+
+    template<>
+    inline auto resolver::create_query<dns_record_e::PTR>(const std::string &name) {
+        const auto qname = reverse_qname(name) + "in-addr.arpa";
+        return dns_query{.header =
+                                 {
+                                         .id = generate_id(),
+                                         .rd = 0x01,
+                                         .qdcount = 0x01,
+                                 },
+                         .question = {
+                                 .qname = qname,
+                                 .qtype = dns_record_e::PTR,
+                                 .qclass = 0x01,
+                         }};
+    }
 } // namespace tuposoft

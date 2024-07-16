@@ -1,15 +1,22 @@
 #include "dns_header.hpp"
 
 #include <boost/asio.hpp>
+#include <memory>
 
 constexpr unsigned SINGLE_BIT_MASK = 1U;
 constexpr unsigned OPCODE_MASK = 0xFU;
 constexpr unsigned RCODE_MASK = 0xFU;
 
 namespace tuposoft {
+    auto header_flags_to_short(const dns_header &header) -> unsigned short {
+        return header.rd << RD_POSITION | header.tc << TC_POSITION | header.aa << AA_POSITION |
+               header.opcode << OPCODE_POSITION | header.qr << QR_POSITION | header.rcode << RCODE_POSITION |
+               header.cd << CD_POSITION | header.ad << AD_POSITION | header.z << Z_POSITION | header.ra << RA_POSITION;
+    }
+
     auto tie_dns_header(const dns_header &header) {
-        return std::tie(header.id, header.rd, header.tc, header.aa, header.opcode, header.qr, header.rcode, header.cd,
-                        header.ad, header.z, header.ra, header.qdcount, header.ancount, header.nscount, header.arcount);
+        return std::tie(header.id, *std::make_unique<unsigned short>(header_flags_to_short(header)), header.qdcount,
+                        header.ancount, header.nscount, header.arcount);
     }
 
     auto operator==(const dns_header &first, const dns_header &second) -> bool {
