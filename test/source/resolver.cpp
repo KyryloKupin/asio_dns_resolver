@@ -35,3 +35,18 @@ TEST(resolver_test, mx) {
             detached);
     context.run();
 }
+
+TEST(resolver_test, ptr) {
+    auto context = io_context{};
+    co_spawn(
+            context,
+            []() -> awaitable<void> {
+                auto resolv = resolver{co_await this_coro::executor};
+                co_await resolv.connect("1.1.1.1");
+                const auto result = co_await resolv.query<dns_record_e::PTR>("217.160.29.228");
+                EXPECT_EQ(result.size(), 1);
+                EXPECT_EQ(result[0].rdata, "mail.tuposoft.com");
+            },
+            detached);
+    context.run();
+}
