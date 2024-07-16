@@ -37,6 +37,9 @@ namespace tuposoft {
     template<>
     auto parse_rdata<dns_record_e::A>(std::istream &input) -> rdata<dns_record_e::A>::type;
 
+    template<>
+    auto parse_rdata<dns_record_e::AAAA>(std::istream &input) -> rdata<dns_record_e::AAAA>::type;
+
     template<dns_record_e T>
     auto operator>>(std::istream &input, dns_answer<T> &answer) -> decltype(input) {
         answer.name = from_dns_label_format(input);
