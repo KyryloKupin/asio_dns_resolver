@@ -1,7 +1,6 @@
 #include "dns_header.hpp"
 
 #include <boost/asio.hpp>
-#include <memory>
 
 constexpr unsigned SINGLE_BIT_MASK = 1U;
 constexpr unsigned OPCODE_MASK = 0xFU;
@@ -47,10 +46,7 @@ namespace tuposoft {
     }
 
     auto operator<<(std::ostream &output, const dns_header &header) -> decltype(output) {
-        const unsigned short flags = header.rd << RD_POSITION | header.tc << TC_POSITION | header.aa << AA_POSITION |
-                                     header.opcode << OPCODE_POSITION | header.qr << QR_POSITION |
-                                     header.rcode << RCODE_POSITION | header.cd << CD_POSITION |
-                                     header.ad << AD_POSITION | header.z << Z_POSITION | header.ra << RA_POSITION;
+        const auto flags = header_flags_to_short(header);
 
         write_big_endian(output, header.id);
         write_big_endian(output, flags);
