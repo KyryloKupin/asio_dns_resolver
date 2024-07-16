@@ -7,6 +7,7 @@
 #include "boost/asio.hpp"
 
 #include <random>
+#include <sstream>
 
 using namespace boost;
 
@@ -41,8 +42,8 @@ namespace tuposoft {
     private:
         static auto generate_id() -> std::uint16_t;
 
-        template<dns_record_e type>
-        static auto create_query(const std::string &domain) {
+        template<dns_record_e T>
+        static auto create_query(const std::string &name) {
             return dns_query{.header =
                                      {
                                              .id = generate_id(),
@@ -50,11 +51,30 @@ namespace tuposoft {
                                              .qdcount = 0x01,
                                      },
                              .question = {
-                                     .qname = domain,
-                                     .qtype = type,
+                                     .qname = name,
+                                     .qtype = T,
                                      .qclass = 0x01,
                              }};
-        };
+        }
+
+        static auto reverse_qname(const std::string &name) -> std::string {
+            auto iss = std::istringstream{name};
+            auto segment = std::string{};
+            auto segments = std::vector<std::string>{};
+
+            while (std::getline(iss, segment, '.')) {
+                segments.push_back(segment);
+            }
+
+            std::reverse(segments.begin(), segments.end());
+
+            auto reversed_ip = std::string{};
+            for (const auto &seg: segments) {
+                reversed_ip += seg + '.';
+            }
+
+            return reversed_ip;
+        }
 
         asio::ip::udp::socket socket_;
     };

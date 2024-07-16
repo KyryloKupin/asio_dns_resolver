@@ -3,44 +3,39 @@
 #include "dns_record_e.hpp"
 #include "mx_rdata.hpp"
 
-#include <array>
-#include <sstream>
 #include <tuple>
 
 namespace tuposoft {
     template<dns_record_e>
-    struct rdata {
-        using type = void;
-    };
-
-    template<>
-    struct rdata<dns_record_e::MX> {
-        using type = mx_rdata;
-    };
-
-    template<>
-    struct rdata<dns_record_e::A> {
+    struct rdata_t {
         using type = std::string;
+    };
+
+    template<>
+    struct rdata_t<dns_record_e::MX> {
+        using type = mx_rdata;
     };
 
     template<dns_record_e T>
     struct dns_answer {
         std::string name;
-        dns_record_e type = T;
+        dns_record_e type{T};
         std::uint16_t cls{};
         std::uint32_t ttl{};
         std::uint16_t rdlength{};
-        typename rdata<T>::type rdata;
+        typename rdata_t<T>::type rdata;
     };
 
     template<dns_record_e T>
-    auto parse_rdata(std::istream &) -> typename rdata<T>::type;
+    auto parse_rdata(std::istream &input) -> typename rdata_t<T>::type {
+        return from_dns_label_format(input);
+    };
 
     template<>
-    auto parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata<dns_record_e::MX>::type;
+    auto parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata_t<dns_record_e::MX>::type;
 
     template<>
-    auto parse_rdata<dns_record_e::A>(std::istream &input) -> rdata<dns_record_e::A>::type;
+    auto parse_rdata<dns_record_e::A>(std::istream &input) -> rdata_t<dns_record_e::A>::type;
 
     template<dns_record_e T>
     auto operator>>(std::istream &input, dns_answer<T> &answer) -> decltype(input) {

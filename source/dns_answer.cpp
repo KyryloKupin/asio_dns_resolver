@@ -5,11 +5,11 @@
 using namespace tuposoft;
 
 template<>
-auto tuposoft::parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata<dns_record_e::MX>::type {
+auto tuposoft::parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata_t<dns_record_e::MX>::type {
     return {read_big_endian<std::uint16_t>(input), from_dns_label_format(input)};
 }
 template<>
-auto tuposoft::parse_rdata<dns_record_e::A>(std::istream &input) -> rdata<dns_record_e::A>::type {
+auto tuposoft::parse_rdata<dns_record_e::A>(std::istream &input) -> rdata_t<dns_record_e::A>::type {
     constexpr auto IPV4_SIZE = 4;
 
     auto output = std::ostringstream{std::ios::binary};
