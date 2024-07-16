@@ -43,9 +43,9 @@ TEST(resolver_test, ptr) {
             []() -> awaitable<void> {
                 auto resolv = resolver{co_await this_coro::executor};
                 co_await resolv.connect("1.1.1.1");
-                const auto result = co_await resolv.query<dns_record_e::PTR>("217.160.29.228");
+                const auto result = co_await resolv.query<dns_record_e::PTR>("1.1.1.1");
                 EXPECT_EQ(result.size(), 1);
-                EXPECT_EQ(result[0].rdata, "mail.tuposoft.com");
+                EXPECT_EQ(result[0].rdata, "one.one.one.one");
             },
             detached);
     context.run();
