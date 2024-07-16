@@ -6,10 +6,14 @@
 using namespace tuposoft;
 using namespace boost::asio;
 
-TEST(resolver_test, a) {
-    auto context = io_context{};
+class resolver_test : public ::testing::Test {
+protected:
+    io_context context_;
+};
+
+TEST_F(resolver_test, a) {
     co_spawn(
-            context,
+            context_,
             []() -> awaitable<void> {
                 auto resolv = resolver{co_await this_coro::executor};
                 co_await resolv.connect("1.1.1.1");
@@ -18,13 +22,12 @@ TEST(resolver_test, a) {
                 EXPECT_EQ(result[0].rdata, "178.151.191.58");
             },
             detached);
-    context.run();
+    context_.run();
 }
 
-TEST(resolver_test, mx) {
-    auto context = io_context{};
+TEST_F(resolver_test, mx) {
     co_spawn(
-            context,
+            context_,
             []() -> awaitable<void> {
                 auto resolv = resolver{co_await this_coro::executor};
                 co_await resolv.connect("1.1.1.1");
@@ -33,13 +36,12 @@ TEST(resolver_test, mx) {
                 EXPECT_EQ(result[0].rdata.mx, "mail.tuposoft.com");
             },
             detached);
-    context.run();
+    context_.run();
 }
 
-TEST(resolver_test, ptr) {
-    auto context = io_context{};
+TEST_F(resolver_test, ptr) {
     co_spawn(
-            context,
+            context_,
             []() -> awaitable<void> {
                 auto resolv = resolver{co_await this_coro::executor};
                 co_await resolv.connect("1.1.1.1");
@@ -48,5 +50,5 @@ TEST(resolver_test, ptr) {
                 EXPECT_EQ(result[0].rdata, "one.one.one.one");
             },
             detached);
-    context.run();
+    context_.run();
 }
