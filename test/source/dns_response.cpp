@@ -7,8 +7,9 @@
 using namespace tuposoft;
 
 TEST(dns_response, parse_mx) {
-    constexpr auto RESPONSE_ID = 0x276f;
+    constexpr auto RESPONSE_ID = 0x276F;
     constexpr auto TTL = 300;
+
     std::vector<dns_answer<dns_record_e::MX>> EXPECTED_DNS_RESPONSE_ANSWERS = {
             {"foobar.com", dns_record_e::MX, 1, TTL, 19,
              mx_rdata{
