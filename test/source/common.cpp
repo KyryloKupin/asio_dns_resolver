@@ -24,12 +24,6 @@ TEST(common, parse_query) {
     ASSERT_EQ(017, input.get());
 }
 
-// 0000   a8 ae 81 80 00 01 00 01 00 00 00 01 08 74 75 70   .............tup
-// 0010   6f 73 6f 66 74 03 63 6f 6d 00 00 0f 00 01 c0 0c   osoft.com.......
-// 0020   00 0f 00 01 00 00 01 2c 00 09 00 0a 04 6d 61 69   .......,.....mai
-// 0030   6c c0 0c 00 00 29 04 d0 00 00 00 00 00 00         l....)........
-
-
 TEST(common, parse_pointer) {
     constexpr auto EXPECTED = "mail.tuposoft.com";
     auto span = std::span{
