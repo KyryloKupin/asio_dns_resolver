@@ -22,21 +22,19 @@ TEST(dns_answer, parse_rdata_aaaa) {
     ASSERT_EQ(expected, actual);
 }
 
-// TEST(dns_answer, parse_rdata_ns) {
-//     constexpr auto response =
-//             std::span{"\221X\201\200\000\001\000\002\000\000\000\001\btuposoft\003com\000\000\002\000\001\300\f"
-//                       "\000\002\000\001\000\001Q\200\000\031\bbenedict\002ns\ncloudflare\300\025\300\f\000\002\000"
-//                       "\001\000\001Q\200\000\f\tgabriella\3003\000\000)\004\320\000\000\000\000\000\000"};
-//     constexpr auto rdata = std::span{"\000\f\tgabriella"};
-//
-//     auto result = std::ranges::search(response, rdata);
-//     ASSERT_NE(result.begin(), response.end());
-//
-//     const auto offset = std::ranges::distance(response.begin(), result.begin());
-//     constexpr auto expected = "gabriella.ns.cloudflare.com";
-//
-//     auto input = std::istringstream{{response.begin(), response.end()}, std::ios::binary};
-//     input.seekg(offset);
-//     const auto actual = parse_rdata<dns_record_e::NS>(input);
-//     ASSERT_EQ(expected, actual);
-// }
+TEST(dns_answer, parse_rdata_ns) {
+    constexpr auto expected = "gabriella.ns.cloudflare.com";
+    constexpr auto response =
+            std::span{"\221X\201\200\000\001\000\002\000\000\000\001\btuposoft\003com\000\000\002\000\001\300\f"
+                      "\000\002\000\001\000\001Q\200\000\031\bbenedict\002ns\ncloudflare\300\025\300\f\000\002\000"
+                      "\001\000\001Q\200\000\f\tgabriella\3003\000\000)\004\320\000\000\000\000\000\000"};
+
+    const auto response_str = std::string{response.begin(), response.end()};
+    const auto offset = response_str.find("\tgabriella");
+    ASSERT_NE(offset, std::string::npos);
+
+    auto input = std::istringstream{response_str, std::ios::binary};
+    input.seekg(static_cast<std::streamoff>(offset));
+    const auto actual = parse_rdata<dns_record_e::NS>(input);
+    ASSERT_EQ(expected, actual);
+}
