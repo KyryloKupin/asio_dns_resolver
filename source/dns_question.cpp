@@ -24,7 +24,7 @@ namespace tuposoft {
 
     auto operator>>(std::istream &input, dns_question &question) -> decltype(input) {
         question.qname = from_dns_label_format(input);
-        question.qtype = static_cast<dns_record_e>(read_big_endian(input));
+        question.qtype = static_cast<qtype>(read_big_endian(input));
         question.qclass = read_big_endian(input);
 
         return input;

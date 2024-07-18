@@ -3,7 +3,7 @@
 #include "common.hpp"
 
 namespace tuposoft {
-    enum struct dns_record_e : std::uint8_t {
+    enum struct qtype : std::uint8_t {
         A = 1, // IPv4 address record
         NS = 2, // Delegates a DNS zone to use the given authoritative name servers
         CNAME = 5, // Canonical name record
@@ -21,8 +21,8 @@ namespace tuposoft {
     };
 
     // Overload << operator for dns_record_e
-    auto operator<<(std::ostream &out, dns_record_e record) -> decltype(out);
+    auto operator<<(std::ostream &out, qtype record) -> decltype(out);
 
     // Overload >> operator for dns_record_e
-    auto operator>>(std::istream &ins, dns_record_e &record) -> decltype(ins);
+    auto operator>>(std::istream &ins, qtype &record) -> decltype(ins);
 } // namespace tuposoft

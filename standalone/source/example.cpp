@@ -19,7 +19,7 @@ auto handle_session(asio::ip::tcp::socket socket, std::shared_ptr<tuposoft::reso
                 const auto domain = params.substr(0, pos);
                 const auto query_type = params.substr(pos + 1);
 
-                auto result = co_await resolver->query<tuposoft::dns_record_e::MX>(domain);
+                auto result = co_await resolver->query<tuposoft::qtype::MX>(domain);
 
                 auto response = http::response<http::string_body>{http::status::ok, request.version()};
                 response.set(http::field::server, BOOST_BEAST_VERSION_STRING);

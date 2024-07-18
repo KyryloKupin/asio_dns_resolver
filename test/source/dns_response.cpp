@@ -10,34 +10,34 @@ TEST(dns_response, mx) {
     constexpr auto RESPONSE_ID = 0x276F;
     constexpr auto TTL = 300;
 
-    std::vector<dns_answer<dns_record_e::MX>> expected = {
-            {"foobar.com", dns_record_e::MX, 1, TTL, 19,
+    std::vector<dns_answer<qtype::MX>> expected = {
+            {"foobar.com", qtype::MX, 1, TTL, 19,
              mx_rdata{
                      1,
                      "aspmx.l.google.com",
              }},
-            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", qtype::MX, 1, TTL, 9,
              mx_rdata{
                      10,
                      "alt3.aspmx.l.google.com",
              }},
-            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", qtype::MX, 1, TTL, 9,
              mx_rdata{
                      10,
                      "alt4.aspmx.l.google.com",
              }},
-            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", qtype::MX, 1, TTL, 9,
              mx_rdata{
                      5,
                      "alt1.aspmx.l.google.com",
              }},
-            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", qtype::MX, 1, TTL, 9,
              mx_rdata{
                      5,
                      "alt2.aspmx.l.google.com",
              }},
     };
-    auto expected_response = dns_response<dns_record_e::MX>{{
+    auto expected_response = dns_response<qtype::MX>{{
                                                                     .header =
                                                                             {
                                                                                     .id = RESPONSE_ID,
@@ -52,7 +52,7 @@ TEST(dns_response, mx) {
                                                                     .question =
                                                                             {
                                                                                     .qname = "foobar.com",
-                                                                                    .qtype = dns_record_e::MX,
+                                                                                    .qtype = qtype::MX,
                                                                                     .qclass = 1,
                                                                             },
                                                             },
@@ -67,7 +67,7 @@ TEST(dns_response, mx) {
 
     auto input = std::istringstream{{span.begin(), span.end()}, std::ios::binary};
 
-    auto actual_dns_response = dns_response<dns_record_e::MX>{};
+    auto actual_dns_response = dns_response<qtype::MX>{};
     input >> actual_dns_response;
 
     ASSERT_EQ(expected_response.header, actual_dns_response.header) << "The header doesn't match!";
@@ -84,7 +84,7 @@ TEST(dns_response, soa) {
 
     auto input = std::istringstream{{span.begin(), span.end()}, std::ios::binary};
 
-    auto actual = dns_response<dns_record_e::SOA>{};
+    auto actual = dns_response<qtype::SOA>{};
     input >> actual;
 
     constexpr auto RESPONSE_ID = 0x3544;
@@ -96,7 +96,7 @@ TEST(dns_response, soa) {
     constexpr auto EXPIRE = 1209600;
     constexpr auto MINIMUM = 3600;
 
-    std::vector<dns_answer<dns_record_e::SOA>> answers = {{"example.com", dns_record_e::SOA, 1, TTL, RDLENGH,
+    std::vector<dns_answer<qtype::SOA>> answers = {{"example.com", qtype::SOA, 1, TTL, RDLENGH,
                                                            soa_rdata{
                                                                    .mname = "ns.icann.org",
                                                                    .rname = "noc.dns.icann.org",
@@ -107,7 +107,7 @@ TEST(dns_response, soa) {
                                                                    .minimum = MINIMUM,
                                                            }}};
 
-    auto expected = dns_response<dns_record_e::SOA>{
+    auto expected = dns_response<qtype::SOA>{
             {{
                      .id = RESPONSE_ID,
                      .rd = 1,
@@ -121,7 +121,7 @@ TEST(dns_response, soa) {
              },
              {
                      .qname = "example.com",
-                     .qtype = dns_record_e::SOA,
+                     .qtype = qtype::SOA,
                      .qclass = 1,
              }},
             answers,

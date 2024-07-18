@@ -1,8 +1,8 @@
 #pragma once
 
 #include "dns_query.hpp"
-#include "dns_record_e.hpp"
 #include "dns_response.hpp"
+#include "qtype.hpp"
 
 #include "boost/asio.hpp"
 
@@ -21,7 +21,7 @@ namespace tuposoft {
             co_await socket_.async_connect({asio::ip::address::from_string(server), DNS_PORT}, asio::use_awaitable);
         }
 
-        template<dns_record_e T>
+        template<qtype T>
         auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
             const auto query = create_query<T>(domain);
             auto buf = asio::streambuf{};
@@ -42,7 +42,7 @@ namespace tuposoft {
     private:
         static auto generate_id() -> std::uint16_t;
 
-        template<dns_record_e T>
+        template<qtype T>
         auto create_query(const std::string &name) {
             return dns_query{.header =
                                      {
@@ -80,7 +80,7 @@ namespace tuposoft {
     };
 
     template<>
-    inline auto resolver::create_query<dns_record_e::PTR>(const std::string &name) {
+    inline auto resolver::create_query<qtype::PTR>(const std::string &name) {
         const auto qname = reverse_qname(name) + "in-addr.arpa";
         return dns_query{.header =
                                  {
@@ -90,7 +90,7 @@ namespace tuposoft {
                                  },
                          .question = {
                                  .qname = qname,
-                                 .qtype = dns_record_e::PTR,
+                                 .qtype = qtype::PTR,
                                  .qclass = 0x01,
                          }};
     }

@@ -6,22 +6,22 @@
 #include <iostream>
 
 namespace tuposoft {
-    template<dns_record_e T>
+    template<qtype T>
     struct dns_response : dns_query {
         std::vector<dns_answer<T>> answers;
     };
 
-    template<dns_record_e T>
+    template<qtype T>
     auto tie_dns_response(const dns_response<T> &response) {
         return std::tie(response.header, response.question, response.answers);
     }
 
-    template<dns_record_e T>
+    template<qtype T>
     auto operator==(const dns_response<T> &first, const dns_response<T> &second) -> bool {
         return tie_dns_response(first) == tie_dns_response(second);
     }
 
-    template<dns_record_e T>
+    template<qtype T>
     auto operator>>(std::istream &input, dns_response<T> &response) -> decltype(input) {
         input >> response.header;
         input >> response.question;

@@ -10,7 +10,7 @@ TEST(dns_answer, parse_rdata_a) {
     constexpr auto expected = "178.151.191.58";
     auto span = std::span{"\262\227\277:"};
     auto input = std::istringstream{{span.begin(), span.end()}, std::ios::binary};
-    const auto actual = parse_rdata<dns_record_e::A>(input);
+    const auto actual = parse_rdata<qtype::A>(input);
     ASSERT_EQ(expected, actual);
 }
 
@@ -18,7 +18,7 @@ TEST(dns_answer, parse_rdata_aaaa) {
     constexpr auto expected = "2606:2800:21f:cb07:6820:80da:af6b:8b2c";
     auto span = std::span{"&\006(\000\002\037\313\ah \200\332\257k\213,"};
     auto input = std::istringstream{{span.begin(), span.end()}, std::ios::binary};
-    const auto actual = parse_rdata<dns_record_e::AAAA>(input);
+    const auto actual = parse_rdata<qtype::AAAA>(input);
     ASSERT_EQ(expected, actual);
 }
 
@@ -35,7 +35,7 @@ TEST(dns_answer, parse_rdata_ns) {
 
     auto input = std::istringstream{response_str, std::ios::binary};
     input.seekg(static_cast<std::streamoff>(offset));
-    const auto actual = parse_rdata<dns_record_e::NS>(input);
+    const auto actual = parse_rdata<qtype::NS>(input);
     ASSERT_EQ(expected, actual);
 }
 
@@ -44,6 +44,6 @@ TEST(dns_answer, parse_rdata_txt) {
     constexpr auto rdata = std::span{"\036"
                                      "v=spf1 ip4:217.160.29.228 ~all"};
     auto input = std::istringstream{{rdata.begin(), rdata.end()}, std::ios::binary};
-    const auto actual = parse_rdata<dns_record_e::TXT>(input);
+    const auto actual = parse_rdata<qtype::TXT>(input);
     ASSERT_EQ(expected, actual);
 }

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "dns_record_e.hpp"
+#include "qtype.hpp"
 
 namespace tuposoft {
     struct dns_question {
         std::string qname;
-        dns_record_e qtype;
+        qtype qtype;
         std::uint16_t qclass{1};
     };
 
