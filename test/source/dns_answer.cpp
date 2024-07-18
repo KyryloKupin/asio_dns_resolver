@@ -38,3 +38,12 @@ TEST(dns_answer, parse_rdata_ns) {
     const auto actual = parse_rdata<dns_record_e::NS>(input);
     ASSERT_EQ(expected, actual);
 }
+
+TEST(dns_answer, parse_rdata_txt) {
+    constexpr auto expected = "v=spf1 ip4:217.160.29.228 ~all";
+    constexpr auto rdata = std::span{"\036"
+                                     "v=spf1 ip4:217.160.29.228 ~all"};
+    auto input = std::istringstream{{rdata.begin(), rdata.end()}, std::ios::binary};
+    const auto actual = parse_rdata<dns_record_e::TXT>(input);
+    ASSERT_EQ(expected, actual);
+}
