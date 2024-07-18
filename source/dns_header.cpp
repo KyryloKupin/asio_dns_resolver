@@ -7,14 +7,14 @@ constexpr unsigned OPCODE_MASK = 0xFU;
 constexpr unsigned RCODE_MASK = 0xFU;
 
 namespace tuposoft {
-    auto header_flags_to_short(const dns_header &header) -> unsigned short {
+    auto header_flags_to_short(const dns_header &header) -> std::uint16_t {
         return header.rd << RD_POSITION | header.tc << TC_POSITION | header.aa << AA_POSITION |
                header.opcode << OPCODE_POSITION | header.qr << QR_POSITION | header.rcode << RCODE_POSITION |
                header.cd << CD_POSITION | header.ad << AD_POSITION | header.z << Z_POSITION | header.ra << RA_POSITION;
     }
 
     auto tie_dns_header(const dns_header &header) {
-        return std::tie(header.id, *std::make_unique<unsigned short>(header_flags_to_short(header)), header.qdcount,
+        return std::tie(header.id, *std::make_unique<std::uint16_t>(header_flags_to_short(header)), header.qdcount,
                         header.ancount, header.nscount, header.arcount);
     }
 
