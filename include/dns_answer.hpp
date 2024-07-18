@@ -2,6 +2,7 @@
 
 #include "dns_record_e.hpp"
 #include "mx_rdata.hpp"
+#include "soa_rdata.hpp"
 
 #include <tuple>
 
@@ -14,6 +15,11 @@ namespace tuposoft {
     template<>
     struct rdata<dns_record_e::MX> {
         using type = mx_rdata;
+    };
+
+    template<>
+    struct rdata<dns_record_e::SOA> {
+        using type = soa_rdata;
     };
 
     template<dns_record_e T>
@@ -39,6 +45,9 @@ namespace tuposoft {
 
     template<>
     auto parse_rdata<dns_record_e::AAAA>(std::istream &input) -> rdata<dns_record_e::AAAA>::type;
+
+    template<>
+    auto parse_rdata<dns_record_e::SOA>(std::istream &input) -> rdata<dns_record_e::SOA>::type;
 
     template<dns_record_e T>
     auto operator>>(std::istream &input, dns_answer<T> &answer) -> decltype(input) {

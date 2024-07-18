@@ -31,7 +31,7 @@ namespace tuposoft {
     template<typename T = std::uint16_t>
     auto write_big_endian(std::ostream &output, T val) -> decltype(output) {
         std::array<char, sizeof(val)> buffer{};
-        auto val_be = htons(val);
+        const auto val_be = htons(val);
         std::memcpy(buffer.data(), &val_be, sizeof(val));
         output.write(buffer.data(), buffer.size());
         return output;
