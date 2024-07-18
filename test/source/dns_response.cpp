@@ -112,6 +112,7 @@ TEST(dns_response, soa) {
                      .id = RESPONSE_ID,
                      .rd = 1,
                      .qr = 1,
+                     .ad = 1,
                      .ra = 1,
                      .qdcount = 1,
                      .ancount = 1,

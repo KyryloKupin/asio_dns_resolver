@@ -42,3 +42,11 @@ auto tuposoft::parse_rdata<dns_record_e::SOA>(std::istream &input) -> rdata<dns_
             read_big_endian<std::uint32_t>(input),
     };
 }
+
+template<>
+auto tuposoft::parse_rdata<dns_record_e::TXT>(std::istream &input) -> rdata<dns_record_e::TXT>::type {
+    const auto txt_length = input.get();
+    auto buffer = std::vector<char>(txt_length);
+    input.read(buffer.data(), txt_length);
+    return {buffer.begin(), buffer.end()};
+}
