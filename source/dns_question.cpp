@@ -4,7 +4,7 @@
 
 namespace tuposoft {
     auto tie_dns_question(const dns_question &question) {
-        return std::tie(question.qname, question.qtype, question.qclass);
+        return std::tie(question.qname, question.type, question.qclass);
     }
 
     auto operator==(const dns_question &first, const dns_question &second) -> bool {
@@ -16,7 +16,7 @@ namespace tuposoft {
         output.write(std::string{label_format.begin(), label_format.end()}.c_str(),
                      static_cast<std::streamsize>(label_format.size()));
 
-        write_big_endian(output, static_cast<std::uint16_t>(question.qtype));
+        write_big_endian(output, static_cast<std::uint16_t>(question.type));
         write_big_endian(output, question.qclass);
 
         return output;
@@ -24,7 +24,7 @@ namespace tuposoft {
 
     auto operator>>(std::istream &input, dns_question &question) -> decltype(input) {
         question.qname = from_dns_label_format(input);
-        question.qtype = static_cast<qtype>(read_big_endian(input));
+        question.type = static_cast<qtype>(read_big_endian(input));
         question.qclass = read_big_endian(input);
 
         return input;

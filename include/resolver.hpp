@@ -52,7 +52,7 @@ namespace tuposoft {
                                      },
                              .question = {
                                      .qname = name,
-                                     .qtype = T,
+                                     .type = T,
                                      .qclass = 0x01,
                              }};
         }
@@ -90,7 +90,7 @@ namespace tuposoft {
                                  },
                          .question = {
                                  .qname = qname,
-                                 .qtype = qtype::PTR,
+                                 .type = qtype::PTR,
                                  .qclass = 0x01,
                          }};
     }

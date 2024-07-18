@@ -52,7 +52,7 @@ TEST(dns_response, mx) {
                                                                     .question =
                                                                             {
                                                                                     .qname = "foobar.com",
-                                                                                    .qtype = qtype::MX,
+                                                                                    .type = qtype::MX,
                                                                                     .qclass = 1,
                                                                             },
                                                             },
@@ -121,7 +121,7 @@ TEST(dns_response, soa) {
              },
              {
                      .qname = "example.com",
-                     .qtype = qtype::SOA,
+                     .type = qtype::SOA,
                      .qclass = 1,
              }},
             answers,

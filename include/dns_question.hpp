@@ -5,7 +5,7 @@
 namespace tuposoft {
     struct dns_question {
         std::string qname;
-        qtype qtype;
+        qtype type;
         std::uint16_t qclass{1};
     };
 
