@@ -32,3 +32,13 @@ auto tuposoft::parse_rdata<dns_record_e::AAAA>(std::istream &input) -> rdata<dns
 
     return str_ipv6.data();
 }
+
+template<>
+auto tuposoft::parse_rdata<dns_record_e::SOA>(std::istream &input) -> rdata<dns_record_e::SOA>::type {
+    return {
+            from_dns_label_format(input),          from_dns_label_format(input),
+            read_big_endian<std::uint32_t>(input), read_big_endian<std::uint32_t>(input),
+            read_big_endian<std::uint32_t>(input), read_big_endian<std::uint32_t>(input),
+            read_big_endian<std::uint32_t>(input),
+    };
+}
