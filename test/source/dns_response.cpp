@@ -113,6 +113,7 @@ TEST(dns_response, soa) {
                      .rd = 1,
                      .qr = 1,
                      .ra = 1,
+                     .ad = 1,
                      .qdcount = 1,
                      .ancount = 1,
                      .nscount = 0,
