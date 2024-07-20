@@ -39,26 +39,26 @@ TEST(dns_response, mx) {
              }},
     };
     auto expected_response =
-            dns_response{{
-                                 .header =
-                                         {
-                                                 .id = RESPONSE_ID,
-                                                 .rd = 1,
-                                                 .qr = 1,
-                                                 .ra = 1,
-                                                 .qdcount = 1,
-                                                 .ancount = static_cast<std::uint16_t>(expected.size()),
-                                                 .nscount = 0,
-                                                 .arcount = 1,
-                                         },
-                                 .question =
-                                         {
-                                                 .qname = "foobar.com",
-                                                 .type = qtype::MX,
-                                                 .cls = qclass::IN,
-                                         },
-                         },
-                         expected};
+            dns_response<qtype::MX>{{
+                                            .header =
+                                                    {
+                                                            .id = RESPONSE_ID,
+                                                            .rd = 1,
+                                                            .qr = 1,
+                                                            .ra = 1,
+                                                            .qdcount = 1,
+                                                            .ancount = static_cast<std::uint16_t>(expected.size()),
+                                                            .nscount = 0,
+                                                            .arcount = 1,
+                                                    },
+                                            .question =
+                                                    {
+                                                            .qname = "foobar.com",
+                                                            .type = qtype::MX,
+                                                            .cls = qclass::IN,
+                                                    },
+                                    },
+                                    expected};
 
     auto span = std::span{
             "'o\201\200\000\001\000\005\000\000\000\001\006foobar\003com\000\000\017\000\001\300\f\000\017\000\001\000"
@@ -109,7 +109,7 @@ TEST(dns_response, soa) {
                                                             .minimum = MINIMUM,
                                                     }}};
 
-    auto expected = dns_response{
+    auto expected = dns_response<qtype::SOA>{
             {{
                      .id = RESPONSE_ID,
                      .rd = 1,
