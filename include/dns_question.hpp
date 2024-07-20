@@ -7,7 +7,7 @@ namespace tuposoft {
     struct dns_question {
         std::string qname;
         qtype type;
-        qclass cls{qclass::IN};
+        qclass cls = qclass::IN;
     };
 
     auto operator==(const dns_question &, const dns_question &) -> bool;
