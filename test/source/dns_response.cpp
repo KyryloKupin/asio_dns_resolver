@@ -38,26 +38,27 @@ TEST(dns_response, mx) {
                      "alt2.aspmx.l.google.com",
              }},
     };
-    auto expected_response = dns_response<qtype::MX>{{
-                                                             .header =
-                                                                     {
-                                                                             .id = RESPONSE_ID,
-                                                                             .rd = 1,
-                                                                             .qr = 1,
-                                                                             .ra = 1,
-                                                                             .qdcount = 1,
-                                                                             .ancount = 5,
-                                                                             .nscount = 0,
-                                                                             .arcount = 1,
-                                                                     },
-                                                             .question =
-                                                                     {
-                                                                             .qname = "foobar.com",
-                                                                             .type = qtype::MX,
-                                                                             .cls = qclass::IN,
-                                                                     },
-                                                     },
-                                                     expected};
+    auto expected_response =
+            dns_response<qtype::MX>{{
+                                            .header =
+                                                    {
+                                                            .id = RESPONSE_ID,
+                                                            .rd = 1,
+                                                            .qr = 1,
+                                                            .ra = 1,
+                                                            .qdcount = 1,
+                                                            .ancount = static_cast<std::uint16_t>(expected.size()),
+                                                            .nscount = 0,
+                                                            .arcount = 1,
+                                                    },
+                                            .question =
+                                                    {
+                                                            .qname = "foobar.com",
+                                                            .type = qtype::MX,
+                                                            .cls = qclass::IN,
+                                                    },
+                                    },
+                                    expected};
 
     auto span = std::span{
             "'o\201\200\000\001\000\005\000\000\000\001\006foobar\003com\000\000\017\000\001\300\f\000\017\000\001\000"
