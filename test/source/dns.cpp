@@ -49,7 +49,7 @@ protected:
     dns_question question_{
             .qname = "tuposoft.com",
             .type = qtype::MX,
-            .qclass = 1,
+            .cls = qclass::IN,
     };
 
     dns_query query_{

@@ -10,4 +10,4 @@ namespace tuposoft {
         HS = 4,
         ANY = 255,
     };
-}
+} // namespace tuposoft

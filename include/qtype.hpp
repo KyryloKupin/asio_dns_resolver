@@ -19,10 +19,4 @@ namespace tuposoft {
         NSEC = 47, // Next-secure record
         DNSKEY = 48 // DNSSEC public key
     };
-
-    // Overload << operator for dns_record_e
-    auto operator<<(std::ostream &out, qtype record) -> decltype(out);
-
-    // Overload >> operator for dns_record_e
-    auto operator>>(std::istream &ins, qtype &record) -> decltype(ins);
 } // namespace tuposoft
