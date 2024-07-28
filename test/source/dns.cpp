@@ -49,7 +49,6 @@ protected:
     dns_question question_{
             .qname = "tuposoft.com",
             .type = qtype::MX,
-            .cls = qclass::IN,
     };
 
     dns_query query_{

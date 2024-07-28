@@ -55,7 +55,6 @@ TEST(dns_response, mx) {
                                                     {
                                                             .qname = "foobar.com",
                                                             .type = qtype::MX,
-                                                            .cls = qclass::IN,
                                                     },
                                     },
                                     expected};
@@ -124,7 +123,6 @@ TEST(dns_response, soa) {
              {
                      .qname = "example.com",
                      .type = qtype::SOA,
-                     .cls = qclass::IN,
              }},
             answers,
     };

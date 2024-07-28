@@ -26,7 +26,7 @@ protected:
 };
 
 TEST_F(resolver_test, a) {
-    co_spawn(context_, query_test<qtype::A>({"tuposoft.com", 1, {"178.151.191.58"}}), detached);
+    co_spawn(context_, query_test<qtype::A>({"tuposoft.com", 1, {"217.160.29.228"}}), detached);
     context_.run();
 }
 

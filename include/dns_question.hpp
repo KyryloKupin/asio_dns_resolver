@@ -3,11 +3,14 @@
 #include "qclass.hpp"
 #include "qtype.hpp"
 
+#include <string>
+#include <iostream>
+
 namespace tuposoft {
     struct dns_question {
         std::string qname;
         qtype type;
-        qclass cls{qclass::IN};
+        qclass cls{qclass::INET};
     };
 
     auto operator==(const dns_question &, const dns_question &) -> bool;
