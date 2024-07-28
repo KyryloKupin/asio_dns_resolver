@@ -4,7 +4,7 @@ set(BASE_PROJECT_NAME "asio_dns_resolver")
 set(TEST_PROJECT_NAME "${BASE_PROJECT_NAME}_test")
 set(STANDALONE_PROJECT_NAME "${BASE_PROJECT_NAME}_exec")
 
-set(PROJECT_DESCRIPTION "Asynchronous DNS Resolver based on ASIO")
+set(PROJECT_DESCRIPTION "Asynchronous DNS Resolver written in C++ based on ASIO")
 set(PROJECT_VERSION 0.0.3.0)
 
 set(CMAKE_MINIMUM_REQUIRED_VERSION 3.24)
