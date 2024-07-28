@@ -9,9 +9,9 @@
 #include <random>
 #include <sstream>
 
-using namespace boost;
+namespace kyrylokupin::asio::dns {
+    namespace asio = boost::asio;
 
-namespace tuposoft {
     class resolver {
     public:
         explicit resolver(const asio::any_io_executor &executor) : socket_(executor) {}
@@ -32,7 +32,7 @@ namespace tuposoft {
             auto input = std::array<char, 1024>{};
             co_await socket_.async_receive(asio::buffer(input), asio::use_awaitable);
 
-            auto dns_response = tuposoft::dns_response<T>{};
+            auto dns_response = kyrylokupin::asio::dns::dns_response<T>{};
             auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
             instream >> dns_response;
 
@@ -94,4 +94,4 @@ namespace tuposoft {
                                  .cls = qclass::INET,
                          }};
     }
-} // namespace tuposoft
+} // namespace KyryloKupin::asio::dns

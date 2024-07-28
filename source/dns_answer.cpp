@@ -1,14 +1,14 @@
 #include "dns_answer.hpp"
 
-using namespace tuposoft;
+using namespace kyrylokupin::asio::dns;
 
 template<>
-auto tuposoft::parse_rdata<qtype::MX>(std::istream &input) -> rdata<qtype::MX>::type {
+auto kyrylokupin::asio::dns::parse_rdata<qtype::MX>(std::istream &input) -> rdata<qtype::MX>::type {
     return {read_big_endian<std::uint16_t>(input), from_dns_label_format(input)};
 }
 
 template<>
-auto tuposoft::parse_rdata<qtype::A>(std::istream &input) -> rdata<qtype::A>::type {
+auto kyrylokupin::asio::dns::parse_rdata<qtype::A>(std::istream &input) -> rdata<qtype::A>::type {
     constexpr auto IPV4_SIZE = 4;
 
     auto binary_ipv4 = std::array<char, IPV4_SIZE>{};
@@ -21,7 +21,7 @@ auto tuposoft::parse_rdata<qtype::A>(std::istream &input) -> rdata<qtype::A>::ty
 }
 
 template<>
-auto tuposoft::parse_rdata<qtype::AAAA>(std::istream &input) -> rdata<qtype::AAAA>::type {
+auto kyrylokupin::asio::dns::parse_rdata<qtype::AAAA>(std::istream &input) -> rdata<qtype::AAAA>::type {
     constexpr auto IPV6_SIZE = 16;
 
     auto binary_ipv6 = std::array<char, IPV6_SIZE>{};
@@ -34,7 +34,7 @@ auto tuposoft::parse_rdata<qtype::AAAA>(std::istream &input) -> rdata<qtype::AAA
 }
 
 template<>
-auto tuposoft::parse_rdata<qtype::SOA>(std::istream &input) -> rdata<qtype::SOA>::type {
+auto kyrylokupin::asio::dns::parse_rdata<qtype::SOA>(std::istream &input) -> rdata<qtype::SOA>::type {
     return {
             from_dns_label_format(input),          from_dns_label_format(input),
             read_big_endian<std::uint32_t>(input), read_big_endian<std::uint32_t>(input),
@@ -44,7 +44,7 @@ auto tuposoft::parse_rdata<qtype::SOA>(std::istream &input) -> rdata<qtype::SOA>
 }
 
 template<>
-auto tuposoft::parse_rdata<qtype::TXT>(std::istream &input) -> rdata<qtype::TXT>::type {
+auto kyrylokupin::asio::dns::parse_rdata<qtype::TXT>(std::istream &input) -> rdata<qtype::TXT>::type {
     const auto txt_length = input.get();
     auto buffer = std::vector<char>(txt_length);
     input.read(buffer.data(), txt_length);

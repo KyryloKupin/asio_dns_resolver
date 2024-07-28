@@ -1,6 +1,6 @@
 #include "resolver.hpp"
 
-using namespace tuposoft;
+using namespace kyrylokupin::asio::dns;
 
 auto resolver::generate_id() -> decltype(generate_id()) {
     static std::random_device rand;

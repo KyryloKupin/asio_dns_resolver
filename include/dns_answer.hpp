@@ -6,7 +6,7 @@
 
 #include <tuple>
 
-namespace tuposoft {
+namespace kyrylokupin::asio::dns {
     template<qtype>
     struct rdata {
         using type = std::string;

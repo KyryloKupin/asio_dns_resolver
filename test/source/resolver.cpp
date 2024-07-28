@@ -4,7 +4,7 @@
 #include "boost/enable_shared_from_this.hpp"
 #include "gtest/gtest.h"
 
-using namespace tuposoft;
+using namespace kyrylokupin::asio::dns;
 using namespace boost::asio;
 
 class resolver_test : public testing::Test {
@@ -32,8 +32,7 @@ TEST_F(resolver_test, a) {
 
 TEST_F(resolver_test, mx) {
     constexpr auto PREFERENCE = 10;
-    co_spawn(context_, query_test<qtype::MX>({"tuposoft.com", 1, {{PREFERENCE, "mail.tuposoft.com"}}}),
-             detached);
+    co_spawn(context_, query_test<qtype::MX>({"tuposoft.com", 1, {{PREFERENCE, "mail.tuposoft.com"}}}), detached);
     context_.run();
 }
 
@@ -44,8 +43,7 @@ TEST_F(resolver_test, ptr) {
 
 TEST_F(resolver_test, ns) {
     co_spawn(context_,
-             query_test<qtype::NS>(
-                     {"tuposoft.com", 2, {"benedict.ns.cloudflare.com", "gabriella.ns.cloudflare.com"}}),
+             query_test<qtype::NS>({"tuposoft.com", 2, {"benedict.ns.cloudflare.com", "gabriella.ns.cloudflare.com"}}),
              detached);
     context_.run();
 }

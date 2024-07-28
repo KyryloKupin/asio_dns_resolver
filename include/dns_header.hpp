@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <iostream>
 
-namespace tuposoft {
+namespace kyrylokupin::asio::dns {
     struct dns_header {
         std::uint16_t id{}; // Identification
 

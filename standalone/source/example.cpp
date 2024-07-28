@@ -4,9 +4,12 @@
 
 #include <sstream>
 
+namespace beast = boost::beast;
 namespace http = beast::http;
+namespace asio = boost::asio;
+namespace dns = kyrylokupin::asio::dns;
 
-auto handle_session(asio::ip::tcp::socket socket, std::shared_ptr<tuposoft::resolver> resolver)
+auto handle_session(asio::ip::tcp::socket socket, std::shared_ptr<dns::resolver> resolver)
         -> asio::awaitable<void> {
     try {
         auto buffer = beast::flat_buffer{};
@@ -19,7 +22,7 @@ auto handle_session(asio::ip::tcp::socket socket, std::shared_ptr<tuposoft::reso
                 const auto domain = params.substr(0, pos);
                 const auto query_type = params.substr(pos + 1);
 
-                auto result = co_await resolver->query<tuposoft::qtype::MX>(domain);
+                auto result = co_await resolver->query<dns::qtype::MX>(domain);
 
                 auto response = http::response<http::string_body>{http::status::ok, request.version()};
                 response.set(http::field::server, BOOST_BEAST_VERSION_STRING);
@@ -45,7 +48,7 @@ auto handle_session(asio::ip::tcp::socket socket, std::shared_ptr<tuposoft::reso
 }
 
 auto listener(asio::ip::tcp::acceptor acceptor) -> asio::awaitable<void> {
-    const auto resolver = std::make_shared<tuposoft::resolver>(acceptor.get_executor());
+    const auto resolver = std::make_shared<dns::resolver>(acceptor.get_executor());
     co_await resolver->connect("1.1.1.1");
 
     for (;;) {
