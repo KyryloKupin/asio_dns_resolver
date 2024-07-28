@@ -8,7 +8,6 @@ auto KyryloKupin::asio::dns::to_dns_label_format(const std::string &domain) -> s
     auto label_format = std::vector<std::uint8_t>{};
     auto start = std::size_t{};
 
-    // ReSharper disable once CppDFAUnusedValue
     for (auto end = std::size_t{}; (end = domain.find('.', start)) != std::string::npos; start = end + 1) {
         auto length = static_cast<std::uint8_t>(end - start);
         label_format.push_back(length);
