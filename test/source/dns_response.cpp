@@ -1,4 +1,5 @@
 #include "dns_response.hpp"
+#include "qclass.hpp"
 
 #include "gtest/gtest.h"
 
@@ -10,53 +11,53 @@ TEST(dns_response, mx) {
     constexpr auto RESPONSE_ID = 0x276F;
     constexpr auto TTL = 300;
 
-    std::vector<dns_answer<dns_record_e::MX>> expected = {
-            {"foobar.com", dns_record_e::MX, 1, TTL, 19,
+    std::vector<dns_answer<qtype::MX>> expected = {
+            {"foobar.com", qtype::MX, 1, TTL, 19,
              mx_rdata{
                      1,
                      "aspmx.l.google.com",
              }},
-            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", qtype::MX, 1, TTL, 9,
              mx_rdata{
                      10,
                      "alt3.aspmx.l.google.com",
              }},
-            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", qtype::MX, 1, TTL, 9,
              mx_rdata{
                      10,
                      "alt4.aspmx.l.google.com",
              }},
-            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", qtype::MX, 1, TTL, 9,
              mx_rdata{
                      5,
                      "alt1.aspmx.l.google.com",
              }},
-            {"foobar.com", dns_record_e::MX, 1, TTL, 9,
+            {"foobar.com", qtype::MX, 1, TTL, 9,
              mx_rdata{
                      5,
                      "alt2.aspmx.l.google.com",
              }},
     };
-    auto expected_response = dns_response<dns_record_e::MX>{{
-                                                                    .header =
-                                                                            {
-                                                                                    .id = RESPONSE_ID,
-                                                                                    .rd = 1,
-                                                                                    .qr = 1,
-                                                                                    .ra = 1,
-                                                                                    .qdcount = 1,
-                                                                                    .ancount = 5,
-                                                                                    .nscount = 0,
-                                                                                    .arcount = 1,
-                                                                            },
-                                                                    .question =
-                                                                            {
-                                                                                    .qname = "foobar.com",
-                                                                                    .qtype = dns_record_e::MX,
-                                                                                    .qclass = 1,
-                                                                            },
-                                                            },
-                                                            expected};
+    auto expected_response =
+            dns_response<qtype::MX>{{
+                                            .header =
+                                                    {
+                                                            .id = RESPONSE_ID,
+                                                            .rd = 1,
+                                                            .qr = 1,
+                                                            .ra = 1,
+                                                            .qdcount = 1,
+                                                            .ancount = static_cast<std::uint16_t>(expected.size()),
+                                                            .nscount = 0,
+                                                            .arcount = 1,
+                                                    },
+                                            .question =
+                                                    {
+                                                            .qname = "foobar.com",
+                                                            .type = qtype::MX,
+                                                    },
+                                    },
+                                    expected};
 
     auto span = std::span{
             "'o\201\200\000\001\000\005\000\000\000\001\006foobar\003com\000\000\017\000\001\300\f\000\017\000\001\000"
@@ -67,7 +68,7 @@ TEST(dns_response, mx) {
 
     auto input = std::istringstream{{span.begin(), span.end()}, std::ios::binary};
 
-    auto actual_dns_response = dns_response<dns_record_e::MX>{};
+    auto actual_dns_response = dns_response<qtype::MX>{};
     input >> actual_dns_response;
 
     ASSERT_EQ(expected_response.header, actual_dns_response.header) << "The header doesn't match!";
@@ -84,7 +85,7 @@ TEST(dns_response, soa) {
 
     auto input = std::istringstream{{span.begin(), span.end()}, std::ios::binary};
 
-    auto actual = dns_response<dns_record_e::SOA>{};
+    auto actual = dns_response<qtype::SOA>{};
     input >> actual;
 
     constexpr auto RESPONSE_ID = 0x3544;
@@ -96,18 +97,18 @@ TEST(dns_response, soa) {
     constexpr auto EXPIRE = 1209600;
     constexpr auto MINIMUM = 3600;
 
-    std::vector<dns_answer<dns_record_e::SOA>> answers = {{"example.com", dns_record_e::SOA, 1, TTL, RDLENGH,
-                                                           soa_rdata{
-                                                                   .mname = "ns.icann.org",
-                                                                   .rname = "noc.dns.icann.org",
-                                                                   .serial = SERIAL,
-                                                                   .refresh = REFRESH,
-                                                                   .retry = RETRY,
-                                                                   .expire = EXPIRE,
-                                                                   .minimum = MINIMUM,
-                                                           }}};
+    std::vector<dns_answer<qtype::SOA>> answers = {{"example.com", qtype::SOA, 1, TTL, RDLENGH,
+                                                    soa_rdata{
+                                                            .mname = "ns.icann.org",
+                                                            .rname = "noc.dns.icann.org",
+                                                            .serial = SERIAL,
+                                                            .refresh = REFRESH,
+                                                            .retry = RETRY,
+                                                            .expire = EXPIRE,
+                                                            .minimum = MINIMUM,
+                                                    }}};
 
-    auto expected = dns_response<dns_record_e::SOA>{
+    auto expected = dns_response<qtype::SOA>{
             {{
                      .id = RESPONSE_ID,
                      .rd = 1,
@@ -121,8 +122,7 @@ TEST(dns_response, soa) {
              },
              {
                      .qname = "example.com",
-                     .qtype = dns_record_e::SOA,
-                     .qclass = 1,
+                     .type = qtype::SOA,
              }},
             answers,
     };

@@ -1,12 +1,16 @@
 #pragma once
 
-#include "dns_record_e.hpp"
+#include "qclass.hpp"
+#include "qtype.hpp"
+
+#include <string>
+#include <iostream>
 
 namespace tuposoft {
     struct dns_question {
         std::string qname;
-        dns_record_e qtype;
-        std::uint16_t qclass{1};
+        qtype type;
+        qclass cls{qclass::INET};
     };
 
     auto operator==(const dns_question &, const dns_question &) -> bool;

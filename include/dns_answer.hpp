@@ -1,61 +1,61 @@
 #pragma once
 
-#include "dns_record_e.hpp"
 #include "mx_rdata.hpp"
+#include "qtype.hpp"
 #include "soa_rdata.hpp"
 
 #include <tuple>
 
 namespace tuposoft {
-    template<dns_record_e>
+    template<qtype>
     struct rdata {
         using type = std::string;
     };
 
     template<>
-    struct rdata<dns_record_e::MX> {
+    struct rdata<qtype::MX> {
         using type = mx_rdata;
     };
 
     template<>
-    struct rdata<dns_record_e::SOA> {
+    struct rdata<qtype::SOA> {
         using type = soa_rdata;
     };
 
-    template<dns_record_e T>
+    template<qtype T>
     struct dns_answer {
         std::string name;
-        dns_record_e type{T};
+        qtype type{T};
         std::uint16_t cls{};
         std::uint32_t ttl{};
         std::uint16_t rdlength{};
         typename rdata<T>::type rdata;
     };
 
-    template<dns_record_e T>
+    template<qtype T>
     auto parse_rdata(std::istream &input) -> typename rdata<T>::type {
         return from_dns_label_format(input);
     }
 
     template<>
-    auto parse_rdata<dns_record_e::MX>(std::istream &input) -> rdata<dns_record_e::MX>::type;
+    auto parse_rdata<qtype::MX>(std::istream &input) -> rdata<qtype::MX>::type;
 
     template<>
-    auto parse_rdata<dns_record_e::A>(std::istream &input) -> rdata<dns_record_e::A>::type;
+    auto parse_rdata<qtype::A>(std::istream &input) -> rdata<qtype::A>::type;
 
     template<>
-    auto parse_rdata<dns_record_e::AAAA>(std::istream &input) -> rdata<dns_record_e::AAAA>::type;
+    auto parse_rdata<qtype::AAAA>(std::istream &input) -> rdata<qtype::AAAA>::type;
 
     template<>
-    auto parse_rdata<dns_record_e::SOA>(std::istream &input) -> rdata<dns_record_e::SOA>::type;
+    auto parse_rdata<qtype::SOA>(std::istream &input) -> rdata<qtype::SOA>::type;
 
     template<>
-    auto parse_rdata<dns_record_e::TXT>(std::istream &input) -> rdata<dns_record_e::TXT>::type;
+    auto parse_rdata<qtype::TXT>(std::istream &input) -> rdata<qtype::TXT>::type;
 
-    template<dns_record_e T>
+    template<qtype T>
     auto operator>>(std::istream &input, dns_answer<T> &answer) -> decltype(input) {
         answer.name = from_dns_label_format(input);
-        answer.type = static_cast<dns_record_e>(read_big_endian<std::uint16_t>(input));
+        answer.type = static_cast<qtype>(read_big_endian<std::uint16_t>(input));
         answer.cls = read_big_endian<std::uint16_t>(input);
         answer.ttl = read_big_endian<std::uint32_t>(input);
         answer.rdlength = read_big_endian<std::uint16_t>(input);
@@ -64,12 +64,12 @@ namespace tuposoft {
         return input;
     };
 
-    template<dns_record_e T>
+    template<qtype T>
     auto tie_dns_answer(const dns_answer<T> &answer) {
         return std::tie(answer.name, answer.type, answer.cls, answer.ttl, answer.rdlength, answer.rdata);
     };
 
-    template<dns_record_e T>
+    template<qtype T>
     auto operator==(const dns_answer<T> &first, const dns_answer<T> &second) -> bool {
         return tie_dns_answer(first) == tie_dns_answer(second);
     };
