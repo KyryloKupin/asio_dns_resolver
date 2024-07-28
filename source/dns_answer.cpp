@@ -1,14 +1,14 @@
 #include "dns_answer.hpp"
 
-using namespace KyryloKupin;
+using namespace KyryloKupin::asio::dns;
 
 template<>
-auto KyryloKupin::parse_rdata<qtype::MX>(std::istream &input) -> rdata<qtype::MX>::type {
+auto KyryloKupin::asio::dns::parse_rdata<qtype::MX>(std::istream &input) -> rdata<qtype::MX>::type {
     return {read_big_endian<std::uint16_t>(input), from_dns_label_format(input)};
 }
 
 template<>
-auto KyryloKupin::parse_rdata<qtype::A>(std::istream &input) -> rdata<qtype::A>::type {
+auto KyryloKupin::asio::dns::parse_rdata<qtype::A>(std::istream &input) -> rdata<qtype::A>::type {
     constexpr auto IPV4_SIZE = 4;
 
     auto binary_ipv4 = std::array<char, IPV4_SIZE>{};
@@ -21,7 +21,7 @@ auto KyryloKupin::parse_rdata<qtype::A>(std::istream &input) -> rdata<qtype::A>:
 }
 
 template<>
-auto KyryloKupin::parse_rdata<qtype::AAAA>(std::istream &input) -> rdata<qtype::AAAA>::type {
+auto KyryloKupin::asio::dns::parse_rdata<qtype::AAAA>(std::istream &input) -> rdata<qtype::AAAA>::type {
     constexpr auto IPV6_SIZE = 16;
 
     auto binary_ipv6 = std::array<char, IPV6_SIZE>{};
@@ -34,7 +34,7 @@ auto KyryloKupin::parse_rdata<qtype::AAAA>(std::istream &input) -> rdata<qtype::
 }
 
 template<>
-auto KyryloKupin::parse_rdata<qtype::SOA>(std::istream &input) -> rdata<qtype::SOA>::type {
+auto KyryloKupin::asio::dns::parse_rdata<qtype::SOA>(std::istream &input) -> rdata<qtype::SOA>::type {
     return {
             from_dns_label_format(input),          from_dns_label_format(input),
             read_big_endian<std::uint32_t>(input), read_big_endian<std::uint32_t>(input),
@@ -44,7 +44,7 @@ auto KyryloKupin::parse_rdata<qtype::SOA>(std::istream &input) -> rdata<qtype::S
 }
 
 template<>
-auto KyryloKupin::parse_rdata<qtype::TXT>(std::istream &input) -> rdata<qtype::TXT>::type {
+auto KyryloKupin::asio::dns::parse_rdata<qtype::TXT>(std::istream &input) -> rdata<qtype::TXT>::type {
     const auto txt_length = input.get();
     auto buffer = std::vector<char>(txt_length);
     input.read(buffer.data(), txt_length);

@@ -5,7 +5,7 @@
 
 #include <span>
 
-using namespace KyryloKupin;
+using namespace KyryloKupin::asio::dns;
 
 TEST(dns_response, mx) {
     constexpr auto RESPONSE_ID = 0x276F;

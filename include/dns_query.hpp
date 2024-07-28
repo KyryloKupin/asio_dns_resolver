@@ -4,7 +4,7 @@
 #include "dns_header.hpp"
 #include "dns_question.hpp"
 
-namespace KyryloKupin {
+namespace KyryloKupin::asio::dns {
     struct dns_query {
         dns_header header;
         dns_question question;
