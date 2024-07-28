@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace KyryloKupin::asio::dns {
+namespace kyrylokupin::asio::dns {
     template<qtype T>
     struct dns_response : dns_query {
         std::vector<dns_answer<T>> answers;

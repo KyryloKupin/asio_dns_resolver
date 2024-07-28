@@ -9,7 +9,7 @@
 #include <random>
 #include <sstream>
 
-namespace KyryloKupin::asio::dns {
+namespace kyrylokupin::asio::dns {
     namespace asio = boost::asio;
 
     class resolver {
@@ -32,7 +32,7 @@ namespace KyryloKupin::asio::dns {
             auto input = std::array<char, 1024>{};
             co_await socket_.async_receive(asio::buffer(input), asio::use_awaitable);
 
-            auto dns_response = KyryloKupin::asio::dns::dns_response<T>{};
+            auto dns_response = kyrylokupin::asio::dns::dns_response<T>{};
             auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
             instream >> dns_response;
 

@@ -6,7 +6,7 @@
 #include <string>
 #include <iostream>
 
-namespace KyryloKupin::asio::dns {
+namespace kyrylokupin::asio::dns {
     struct dns_question {
         std::string qname;
         qtype type;

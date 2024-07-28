@@ -2,9 +2,9 @@
 
 #include <ranges>
 
-using namespace KyryloKupin::asio::dns;
+using namespace kyrylokupin::asio::dns;
 
-auto KyryloKupin::asio::dns::to_dns_label_format(const std::string &domain) -> std::vector<std::uint8_t> {
+auto kyrylokupin::asio::dns::to_dns_label_format(const std::string &domain) -> std::vector<std::uint8_t> {
     auto label_format = std::vector<std::uint8_t>{};
     auto start = std::size_t{};
 
@@ -41,7 +41,7 @@ auto calculate_new_position(std::istream &input, const std::uint16_t next_byte) 
     return (next_byte & LOWER_SIX_BITS_MASK) << BYTE_SIZE | static_cast<std::uint8_t>(input.get());
 }
 
-auto KyryloKupin::asio::dns::from_dns_label_format(std::istream &input) -> std::string {
+auto kyrylokupin::asio::dns::from_dns_label_format(std::istream &input) -> std::string {
     auto result = std::string{};
     constexpr auto UNSET_PTR_POS = -1;
     auto first_ptr_pos{UNSET_PTR_POS};

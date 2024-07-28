@@ -4,7 +4,7 @@
 #include "boost/enable_shared_from_this.hpp"
 #include "gtest/gtest.h"
 
-using namespace KyryloKupin::asio::dns;
+using namespace kyrylokupin::asio::dns;
 using namespace boost::asio;
 
 class resolver_test : public testing::Test {
