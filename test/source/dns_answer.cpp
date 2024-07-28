@@ -4,7 +4,7 @@
 
 #include <span>
 
-using namespace tuposoft;
+using namespace KyryloKupin;
 
 TEST(dns_answer, parse_rdata_a) {
     constexpr auto expected = "178.151.191.58";

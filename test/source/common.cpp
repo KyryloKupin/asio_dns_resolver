@@ -5,7 +5,7 @@
 #include <span>
 #include <algorithm>
 
-using namespace tuposoft;
+using namespace KyryloKupin;
 
 TEST(common, parse_query) {
     constexpr auto QUERY_QUESTION_OFFSET = 12;

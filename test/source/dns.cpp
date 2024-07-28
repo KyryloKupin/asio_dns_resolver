@@ -4,7 +4,7 @@
 
 #include <ios>
 
-using namespace tuposoft;
+using namespace KyryloKupin;
 
 constexpr auto STRING_TERMINATOR = '\0';
 

@@ -3,7 +3,7 @@
 #include <string>
 #include <cstdint>
 
-namespace tuposoft {
+namespace KyryloKupin {
     struct soa_rdata {
         std::string mname;
         std::string rname;

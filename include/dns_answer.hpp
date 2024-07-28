@@ -6,7 +6,7 @@
 
 #include <tuple>
 
-namespace tuposoft {
+namespace KyryloKupin {
     template<qtype>
     struct rdata {
         using type = std::string;

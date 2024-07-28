@@ -4,7 +4,7 @@
 #include "boost/enable_shared_from_this.hpp"
 #include "gtest/gtest.h"
 
-using namespace tuposoft;
+using namespace KyryloKupin;
 using namespace boost::asio;
 
 class resolver_test : public testing::Test {

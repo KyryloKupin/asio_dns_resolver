@@ -5,7 +5,7 @@
 
 #include <span>
 
-using namespace tuposoft;
+using namespace KyryloKupin;
 
 TEST(dns_response, mx) {
     constexpr auto RESPONSE_ID = 0x276F;

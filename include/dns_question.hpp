@@ -6,7 +6,7 @@
 #include <string>
 #include <iostream>
 
-namespace tuposoft {
+namespace KyryloKupin {
     struct dns_question {
         std::string qname;
         qtype type;

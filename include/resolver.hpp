@@ -11,7 +11,7 @@
 
 using namespace boost;
 
-namespace tuposoft {
+namespace KyryloKupin {
     class resolver {
     public:
         explicit resolver(const asio::any_io_executor &executor) : socket_(executor) {}
@@ -32,7 +32,7 @@ namespace tuposoft {
             auto input = std::array<char, 1024>{};
             co_await socket_.async_receive(asio::buffer(input), asio::use_awaitable);
 
-            auto dns_response = tuposoft::dns_response<T>{};
+            auto dns_response = KyryloKupin::dns_response<T>{};
             auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
             instream >> dns_response;
 

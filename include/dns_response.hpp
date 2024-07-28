@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace tuposoft {
+namespace KyryloKupin {
     template<qtype T>
     struct dns_response : dns_query {
         std::vector<dns_answer<T>> answers;

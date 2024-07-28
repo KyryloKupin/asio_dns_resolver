@@ -2,7 +2,7 @@
 
 #include "common.hpp"
 
-namespace tuposoft {
+namespace KyryloKupin {
     struct mx_rdata {
         std::uint16_t preference{};
         std::string mx;
