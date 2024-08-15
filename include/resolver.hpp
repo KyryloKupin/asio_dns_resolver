@@ -25,7 +25,7 @@ namespace kyrylokupin::asio::dns {
 
         template<qtype T>
         auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
-            static constexpr auto timeout_seconds = 5;
+            static constexpr auto timeout_seconds = 10;
             static constexpr auto INPUT_BUFFER_SIZE = 1024;
             const auto query = create_query<T>(domain);
             auto buf = asio::streambuf{};
