@@ -48,7 +48,7 @@ namespace kyrylokupin::asio::dns {
                                 [&](auto token) { return timer.async_wait(token); })
                                 .async_wait(boost::asio::experimental::wait_for_one(), asio::use_awaitable);
             } while (receive_ec != boost::system::errc::success and current_retry_count < max_retry_count);
-            if (current_retry_count == max_retry_count) {
+            if (current_retry_count == max_retry_count and receive_ec != boost::system::errc::success) {
                 throw std::runtime_error(
                         fmt::format("Timeout while waiting for UDP response, error code: {} error value: {}",
                                     receive_ec.value(), receive_ec.message()));
