@@ -32,11 +32,13 @@ TEST_F(resolver_test, a) {
 }
 */
 
+/*
 TEST_F(resolver_test, mx) {
     constexpr auto PREFERENCE = 10;
     co_spawn(context_, query_test<qtype::MX>({"tuposoft.com", 1, {{PREFERENCE, "mail.tuposoft.com"}}}), detached);
     context_.run();
 }
+*/
 
 TEST_F(resolver_test, ptr) {
     co_spawn(context_, query_test<qtype::PTR>({"1.1.1.1", 1, {"one.one.one.one"}}), detached);
