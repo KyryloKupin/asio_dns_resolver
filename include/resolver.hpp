@@ -28,6 +28,7 @@ namespace kyrylokupin::asio::dns {
         auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
             static constexpr auto timeout_seconds = 10;
             static constexpr auto input_buffer_size = 1024;
+            static constexpr auto max_retry_count = 3;
             const auto query = create_query<T>(domain);
             auto buf = asio::streambuf{};
             auto out = std::ostream{&buf};
@@ -36,25 +37,27 @@ namespace kyrylokupin::asio::dns {
 
             auto input = std::array<char, input_buffer_size>{};
             auto timer = asio::steady_timer{co_await asio::this_coro::executor};
-            timer.expires_after(std::chrono::seconds(timeout_seconds));
-            auto receive = socket_.async_receive(asio::buffer(input), asio::use_awaitable);
-            auto wait = timer.async_wait(asio::use_awaitable);
-
-            auto [receive_result, receive_ec, wait_result, wait_ec] =
-                    co_await asio::experimental::make_parallel_group(
-                            [&](auto token) { return socket_.async_receive(asio::buffer(input), token); },
-                            [&](auto token) { return timer.async_wait(token); })
-                            .async_wait(boost::asio::experimental::wait_for_one(), asio::use_awaitable);
-            if (receive_ec == boost::system::errc::success) {
-                auto dns_response = kyrylokupin::asio::dns::dns_response<T>{};
-                auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
-                instream >> dns_response;
-                co_return dns_response.answers;
-            } else {
+            boost::system::error_code receive_ec;
+            auto current_retry_count = 0;
+            do {
+                ++current_retry_count;
+                timer.expires_after(std::chrono::seconds(timeout_seconds));
+                std::tie(std::ignore, receive_ec, std::ignore, std::ignore) =
+                        co_await asio::experimental::make_parallel_group(
+                                [&](auto token) { return socket_.async_receive(asio::buffer(input), token); },
+                                [&](auto token) { return timer.async_wait(token); })
+                                .async_wait(boost::asio::experimental::wait_for_one(), asio::use_awaitable);
+            } while (receive_ec != boost::system::errc::success and current_retry_count < max_retry_count);
+            if (current_retry_count == max_retry_count) {
                 throw std::runtime_error(
                         fmt::format("Timeout while waiting for UDP response, error code: {} error value: {}",
                                     receive_ec.value(), receive_ec.message()));
             }
+
+            auto dns_response = kyrylokupin::asio::dns::dns_response<T>{};
+            auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
+            instream >> dns_response;
+            co_return dns_response.answers;
         }
 
     private:
