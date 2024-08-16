@@ -1,16 +1,16 @@
 #pragma once
 
-#include "boost/asio/use_awaitable.hpp"
-#include "boost/system/detail/errc.hpp"
 #include "dns_query.hpp"
 #include "dns_response.hpp"
 #include "qtype.hpp"
 
 #include "boost/asio/experimental/parallel_group.hpp"
-
-#include <sstream>
+#include "boost/asio/use_awaitable.hpp"
+#include "boost/system/detail/errc.hpp"
 
 #include <fmt/core.h>
+
+#include <sstream>
 
 namespace kyrylokupin::asio::dns {
     namespace asio = boost::asio;
