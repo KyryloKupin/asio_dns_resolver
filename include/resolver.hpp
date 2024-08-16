@@ -33,13 +33,13 @@ namespace kyrylokupin::asio::dns {
             auto buf = asio::streambuf{};
             auto out = std::ostream{&buf};
             out << query;
-            co_await socket_.async_send(buffer(buf.data(), buf.size()), asio::use_awaitable);
 
             auto input = std::array<char, input_buffer_size>{};
             auto timer = asio::steady_timer{co_await asio::this_coro::executor};
             boost::system::error_code receive_ec;
             auto current_retry_count = 0;
             do {
+                co_await socket_.async_send(buffer(buf.data(), buf.size()), asio::use_awaitable);
                 ++current_retry_count;
                 timer.expires_after(std::chrono::seconds(timeout_seconds));
                 std::tie(std::ignore, receive_ec, std::ignore, std::ignore) =
