@@ -6,12 +6,9 @@
 #include "dns_response.hpp"
 #include "qtype.hpp"
 
-#include "boost/asio.hpp"
 #include "boost/asio/experimental/parallel_group.hpp"
 
-#include <random>
 #include <sstream>
-#include <typeinfo>
 
 #include <fmt/core.h>
 

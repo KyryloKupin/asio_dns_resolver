@@ -1,5 +1,7 @@
 #include "resolver.hpp"
 
+#include <random>
+
 using namespace kyrylokupin::asio::dns;
 
 auto resolver::generate_id() -> decltype(generate_id()) {
