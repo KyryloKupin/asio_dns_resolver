@@ -1,6 +1,7 @@
 #pragma once
 
 #include "boost/asio/use_awaitable.hpp"
+#include "boost/system/detail/errc.hpp"
 #include "dns_query.hpp"
 #include "dns_response.hpp"
 #include "qtype.hpp"
@@ -10,6 +11,9 @@
 
 #include <random>
 #include <sstream>
+#include <typeinfo>
+
+#include <fmt/core.h>
 
 namespace kyrylokupin::asio::dns {
     namespace asio = boost::asio;
@@ -26,17 +30,16 @@ namespace kyrylokupin::asio::dns {
         template<qtype T>
         auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
             static constexpr auto timeout_seconds = 10;
-            static constexpr auto INPUT_BUFFER_SIZE = 1024;
+            static constexpr auto input_buffer_size = 1024;
             const auto query = create_query<T>(domain);
             auto buf = asio::streambuf{};
             auto out = std::ostream{&buf};
             out << query;
             co_await socket_.async_send(buffer(buf.data(), buf.size()), asio::use_awaitable);
 
-            auto input = std::array<char, INPUT_BUFFER_SIZE>{};
+            auto input = std::array<char, input_buffer_size>{};
             auto timer = asio::steady_timer{co_await asio::this_coro::executor};
-            timer.expires_after(std::chrono::seconds(timeout_seconds)); // Set timeout duration
-
+            timer.expires_after(std::chrono::seconds(timeout_seconds));
             auto receive = socket_.async_receive(asio::buffer(input), asio::use_awaitable);
             auto wait = timer.async_wait(asio::use_awaitable);
 
@@ -45,8 +48,7 @@ namespace kyrylokupin::asio::dns {
                             [&](auto token) { return socket_.async_receive(asio::buffer(input), token); },
                             [&](auto token) { return timer.async_wait(token); })
                             .async_wait(boost::asio::experimental::wait_for_one(), asio::use_awaitable);
-
-            if (receive_result[0] == 0) {
+            if (receive_ec == boost::system::errc::success) {
                 auto dns_response = kyrylokupin::asio::dns::dns_response<T>{};
                 auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
                 instream >> dns_response;
