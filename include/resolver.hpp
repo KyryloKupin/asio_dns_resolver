@@ -54,7 +54,9 @@ namespace kyrylokupin::asio::dns {
                 instream >> dns_response;
                 co_return dns_response.answers;
             } else {
-                throw std::runtime_error("Timeout waiting for UDP response");
+                throw std::runtime_error(
+                        fmt::format("Timeout while waiting for UDP response, error code: {} error value: {}",
+                                    receive_ec.value(), receive_ec.message()));
             }
         }
 
