@@ -26,8 +26,8 @@ namespace kyrylokupin::asio::dns {
 
         template<qtype T>
         auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
-            static constexpr auto timeout_seconds = 10;
-            static constexpr auto input_buffer_size = 1024;
+            static constexpr auto timeout_seconds = 2;
+            static constexpr auto input_buffer_size = 2048;
             static constexpr auto max_retry_count = 3;
             const auto query = create_query<T>(domain);
             auto buf = asio::streambuf{};
@@ -50,8 +50,8 @@ namespace kyrylokupin::asio::dns {
             } while (receive_ec != boost::system::errc::success and current_retry_count < max_retry_count);
             if (current_retry_count == max_retry_count and receive_ec != boost::system::errc::success) {
                 throw std::runtime_error(
-                        fmt::format("Timeout while waiting for UDP response, error code: {} error value: {}",
-                                    receive_ec.value(), receive_ec.message()));
+                        fmt::format("Timeout while waiting for UDP response, error code: {} error value: {} retries {}",
+                                    receive_ec.value(), receive_ec.message(), current_retry_count));
             }
 
             auto dns_response = kyrylokupin::asio::dns::dns_response<T>{};
