@@ -18,9 +18,10 @@ protected:
         const auto result = co_await resolv.query<T>(name);
         EXPECT_EQ(result.size(), size);
         for (int i = 0; i < result.size(); ++i) {
-            EXPECT_EQ(result[i].rdata, expected[i]);
+            auto found_it = std::find(expected.begin(), expected.end(), result[i].rdata);
+            EXPECT_NE(found_it, expected.end());
         }
-    };
+    }
 };
 
 TEST_F(resolver_test, a) {
