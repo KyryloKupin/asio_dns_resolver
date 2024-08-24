@@ -1,9 +1,12 @@
 #pragma once
 
+#include "boost/asio/steady_timer.hpp"
 #include "dns_query.hpp"
 #include "dns_response.hpp"
 #include "qtype.hpp"
 
+#include "boost/asio/experimental/as_tuple.hpp"
+#include "boost/asio/experimental/awaitable_operators.hpp"
 #include "boost/asio/experimental/parallel_group.hpp"
 #include "boost/asio/use_awaitable.hpp"
 #include "boost/system/detail/errc.hpp"
@@ -14,8 +17,15 @@
 
 namespace kyrylokupin::asio::dns {
     namespace asio = boost::asio;
-
     class resolver {
+    private:
+        static constexpr auto use_nothrow_awaitable = asio::experimental::as_tuple(asio::use_awaitable);
+        static auto timeout(std::chrono::seconds timeout_duration_s) -> asio::awaitable<void> {
+            auto timer = asio::steady_timer{co_await asio::this_coro::executor};
+            timer.expires_after(timeout_duration_s);
+            co_await timer.async_wait(use_nothrow_awaitable);
+        }
+
     public:
         explicit resolver(const asio::any_io_executor &executor) : socket_(executor) {}
 
@@ -26,7 +36,8 @@ namespace kyrylokupin::asio::dns {
 
         template<qtype T>
         auto query(const std::string domain) -> asio::awaitable<std::vector<dns_answer<T>>> {
-            static constexpr auto timeout_seconds = 3;
+            using namespace boost::asio::experimental::awaitable_operators;
+            static constexpr auto timeout_seconds = std::chrono::seconds(3);
             static constexpr auto input_buffer_size = 2048;
             static constexpr auto max_retry_count = 10;
             const auto query = create_query<T>(domain);
@@ -35,29 +46,22 @@ namespace kyrylokupin::asio::dns {
             out << query;
 
             auto input = std::array<char, input_buffer_size>{};
-            auto timer = asio::steady_timer{co_await asio::this_coro::executor};
-            boost::system::error_code receive_ec;
-            auto current_retry_count = 0;
-            do {
+            auto curr_retry_count = 0;
+            while (curr_retry_count < max_retry_count) {
                 co_await socket_.async_send(buffer(buf.data(), buf.size()), asio::use_awaitable);
-                ++current_retry_count;
-                timer.expires_after(std::chrono::seconds(timeout_seconds));
-                std::tie(std::ignore, receive_ec, std::ignore, std::ignore) =
-                        co_await asio::experimental::make_parallel_group(
-                                [&](auto token) { return socket_.async_receive(asio::buffer(input), token); },
-                                [&](auto token) { return timer.async_wait(token); })
-                                .async_wait(boost::asio::experimental::wait_for_one(), asio::use_awaitable);
-            } while (receive_ec != boost::system::errc::success and current_retry_count < max_retry_count);
-            if (current_retry_count == max_retry_count and receive_ec != boost::system::errc::success) {
-                throw std::runtime_error(
-                        fmt::format("Timeout while waiting for UDP response, error code: {} error value: {} retries {}",
-                                    receive_ec.value(), receive_ec.message(), current_retry_count));
+                ++curr_retry_count;
+                auto result = co_await ((socket_.async_receive(asio::buffer(input), use_nothrow_awaitable)) or
+                                        timeout(timeout_seconds));
+
+                if (result.index() == 0) {
+                    auto dns_response = kyrylokupin::asio::dns::dns_response<T>{};
+                    auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
+                    instream >> dns_response;
+                    co_return dns_response.answers;
+                }
             }
 
-            auto dns_response = kyrylokupin::asio::dns::dns_response<T>{};
-            auto instream = std::istringstream{{input.begin(), input.end()}, std::ios::binary};
-            instream >> dns_response;
-            co_return dns_response.answers;
+            throw std::runtime_error(fmt::format("Timeout while waiting for UDP response"));
         }
 
     private:
