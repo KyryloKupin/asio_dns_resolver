@@ -9,8 +9,7 @@ namespace http = beast::http;
 namespace asio = boost::asio;
 namespace dns = kyrylokupin::asio::dns;
 
-auto handle_session(asio::ip::tcp::socket socket, std::shared_ptr<dns::resolver> resolver)
-        -> asio::awaitable<void> {
+auto handle_session(asio::ip::tcp::socket socket, std::shared_ptr<dns::resolver> resolver) -> asio::awaitable<void> {
     try {
         auto buffer = beast::flat_buffer{};
         auto request = http::request<http::string_body>{};

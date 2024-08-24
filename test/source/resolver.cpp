@@ -1,7 +1,5 @@
 #include "resolver.hpp"
 
-#include "boost/asio.hpp"
-#include "boost/enable_shared_from_this.hpp"
 #include "gtest/gtest.h"
 
 using namespace kyrylokupin::asio::dns;
@@ -20,19 +18,29 @@ protected:
         const auto result = co_await resolv.query<T>(name);
         EXPECT_EQ(result.size(), size);
         for (int i = 0; i < result.size(); ++i) {
-            EXPECT_EQ(result[i].rdata, expected[i]);
+            auto found_it = std::find(expected.begin(), expected.end(), result[i].rdata);
+            EXPECT_NE(found_it, expected.end());
         }
-    };
+    }
 };
 
 TEST_F(resolver_test, a) {
-    co_spawn(context_, query_test<qtype::A>({"tuposoft.com", 1, {"217.160.29.228"}}), detached);
+    co_spawn(context_, query_test<qtype::A>({"example.com", 1, {"93.184.215.14"}}), detached);
     context_.run();
 }
 
 TEST_F(resolver_test, mx) {
-    constexpr auto PREFERENCE = 10;
-    co_spawn(context_, query_test<qtype::MX>({"tuposoft.com", 1, {{PREFERENCE, "mail.tuposoft.com"}}}), detached);
+    co_spawn(context_,
+             query_test<qtype::MX>({"gmail.com",
+                                    5,
+                                    {
+                                            {20, "alt2.gmail-smtp-in.l.google.com"},
+                                            {30, "alt3.gmail-smtp-in.l.google.com"},
+                                            {40, "alt4.gmail-smtp-in.l.google.com"},
+                                            {5, "gmail-smtp-in.l.google.com"},
+                                            {10, "alt1.gmail-smtp-in.l.google.com"},
+                                    }}),
+             detached);
     context_.run();
 }
 
